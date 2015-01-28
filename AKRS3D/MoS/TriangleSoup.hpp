@@ -32,9 +32,6 @@ void createBox(float xsize, float ysize, float zsize);
 /* Create a sphere (approximated by polygon segments) */
 void createSphere(float radius, int segments);
 
-/* Load geometry from an OBJ file */
-void readOBJ(const char* filename);
-
 /* Print data from a triangleSoup object, for debugging purposes */
 void print();
 
