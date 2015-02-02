@@ -193,6 +193,7 @@ FakesAssemblies/
 *.plg
 *.vcxproj
 *.vcxproj.filters
+*.sln
 
 # Visual Studio 6 workspace options file
 *.opt
