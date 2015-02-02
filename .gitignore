@@ -191,6 +191,8 @@ FakesAssemblies/
 
 # Visual Studio 6 build log
 *.plg
+*.vcxproj
+*.vcxproj.filters
 
 # Visual Studio 6 workspace options file
 *.opt
@@ -249,3 +251,6 @@ Temporary Items
 *.exe
 *.out
 *.app
+
+# Sub directories
+MoS/MoS/include/
