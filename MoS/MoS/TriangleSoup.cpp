@@ -53,7 +53,54 @@ void TriangleSoup::clean() {
 
 /* Create a simple box geometry */
 void TriangleSoup::createBox(float xsize, float ysize, float zsize) {
-	/* Not yet implemented */
+	float vertices[8][3] = { { -xsize / 2, -1.0, -zsize / 2 }, { xsize / 2, -ysize / 2, -zsize / 2 },
+	{ xsize / 2, ysize / 2, -zsize / 2 }, { -xsize / 2, ysize / 2, -zsize / 2 }, { -xsize / 2, -ysize / 2, zsize / 2 },
+	{ xsize / 2, -ysize / 2, zsize / 2 }, { xsize / 2, ysize / 2, zsize / 2 }, { -xsize / 2, ysize / 2, zsize / 2 } };
+
+	glBegin(GL_POLYGON);
+	glVertex3fv(vertices[0]);
+	glVertex3fv(vertices[3]);
+	glVertex3fv(vertices[2]);
+	glVertex3fv(vertices[1]);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glVertex3fv(vertices[2]);
+	glVertex3fv(vertices[3]);
+	glVertex3fv(vertices[7]);
+	glVertex3fv(vertices[6]);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glVertex3fv(vertices[0]);
+	glVertex3fv(vertices[4]);
+	glVertex3fv(vertices[7]);
+	glVertex3fv(vertices[3]);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glVertex3fv(vertices[1]);
+	glVertex3fv(vertices[2]);
+	glVertex3fv(vertices[6]);
+	glVertex3fv(vertices[5]);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glVertex3fv(vertices[4]);
+	glVertex3fv(vertices[5]);
+	glVertex3fv(vertices[6]);
+	glVertex3fv(vertices[7]);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glVertex3fv(vertices[0]);
+	glVertex3fv(vertices[1]);
+	glVertex3fv(vertices[5]);
+	glVertex3fv(vertices[4]);
+	glEnd();
+	/*
+	polygon(0, 3, 2, 1);
+	polygon(2, 3, 7, 6);
+	polygon(0, 4, 7, 3);
+	polygon(1, 2, 6, 5);
+	polygon(4, 5, 6, 7);
+	polygon(0, 1, 5, 4);
+	*/
 };
 
 

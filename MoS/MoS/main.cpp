@@ -1,8 +1,10 @@
 
 
 #include <iostream>
-#include "GL\glew.h"
-#include "GLFW\glfw3.h"
+#include "Utilities.hpp"
+#include "TriangleSoup.hpp"
+#include "GL/glew.h"
+#include "GLFW/glfw3.h"
 #include "glm\glm.hpp"
 
 #include <SDKDDKVer.h>
@@ -84,11 +86,19 @@ int main()
 	glAttachShader(shader_programme, vs);
 	glLinkProgram(shader_programme);
 
+	glUseProgram(shader_programme);
+
+	TriangleSoup theBox;
+
 	while (!glfwWindowShouldClose(window)) {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(shader_programme);
+		
 		glBindVertexArray(vao);
+
+		glColor3f(1.0, 0.0, 0.0);
+		theBox.createSphere(1.0, 32);
+		theBox.render();
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);

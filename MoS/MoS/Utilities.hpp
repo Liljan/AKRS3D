@@ -15,8 +15,8 @@
 #define GLFW_INCLUDE_GLCOREARB
 #endif
 
-#include <glew.h>
-#include <glfw3.h>
+#include "GL/glew.h"
+#include "GLFW/glfw3.h"
 
 #ifdef __WIN32__
 // Windows installations usually lack an up-to-date OpenGL extension header,
