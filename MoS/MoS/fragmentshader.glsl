@@ -1,4 +1,4 @@
-#version 330 core
+#version 440 core
 
 attribute vec4 v_coord;
 attribute vec3 v_normal;

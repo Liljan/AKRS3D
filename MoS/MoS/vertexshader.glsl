@@ -1,4 +1,4 @@
-#version 330 core
+#version 440 core
 
 varying vec4 position;  // position of the vertex (and fragment) in world space
 varying vec3 varyingNormalDirection;  // surface normal vector in world space
