@@ -18,7 +18,7 @@ Shader::~Shader()
 void Shader::createShader()
 {
 	const char* vertex_shader =
-		"#version 440\n"
+		"#version 400\n"
 		"layout(location = 0) in vec3 Position;"
 		"layout(location = 1) in vec3 Normal;"
 
@@ -29,13 +29,13 @@ void Shader::createShader()
 		"out vec3 interpolatedNormal;"
 
 		"void main () {"
-		"  gl_Position = MV * vec4 (vp, 1.0);"
+		"  gl_Position = MV * vec4 (Position, 1.0);"
 		"interpolatedNormal = mat3(MV) * Normal;"
 
 		"}";
 
 	const char* fragment_shader =
-		"#version 440\n"
+		"#version 400\n"
 
 		"in vec3 interpolatedNormal;"
 

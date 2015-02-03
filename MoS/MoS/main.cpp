@@ -3,7 +3,9 @@
 #include <iostream>
 #include "Utilities.h"
 #include "Shader.h"
+#include "MatrixStack.hpp"
 #include "Box.h"
+#include "Sphere.h"
 //#include "GL/glew.h"
 //#include "GLFW/glfw3.h"
 #include "glm\glm.hpp"
@@ -14,7 +16,15 @@ using namespace std;
 
 int main()
 {
-	
+	Shader phongShader;
+	MatrixStack MVstack;
+	MVstack.init();
+	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
+					, 0.0f, 0.5f, 0.0f, 0.0f
+					, 0.0f, 0.0f, 0.5f, 0.0f
+					, 0.0f, 0.0f, 0.0f, 1.0f };
+
+	GLint locationMV;
 
 	// start GLEW extension handler
 	if (!glfwInit()) {
@@ -40,11 +50,6 @@ int main()
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 
-	float points[] = {
-		0.0f, -6.0f,
-		0.0f, -0.8f,
-
-	};
 	/*
 	GLuint vbo = 0;
 	glGenBuffers(1, &vbo);
@@ -59,48 +64,35 @@ int main()
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	*/
 
-	const char* vertex_shader =
-		"#version 400\n"
-		"uniform mat4 MV;"
-		"in vec3 vp;"
-		"void main () {"
-		"  gl_Position = MV * vec4 (vp, 1.0);"
-		"}";
-
-	const char* fragment_shader =
-		"#version 400\n"
-		"out vec4 frag_colour;"
-		"void main () {"
-		"  frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);"
-		"}";
-
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertex_shader, NULL);
-	glCompileShader(vs);
-	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragment_shader, NULL);
-	glCompileShader(fs);
+	phongShader.createShader();
 
 
-	GLuint shader_programme = glCreateProgram();
-	glAttachShader(shader_programme, fs);
-	glAttachShader(shader_programme, vs);
-	glLinkProgram(shader_programme);
-
-	glUseProgram(shader_programme);
 
 	Box theBox;
-	theBox.createBox(0.5, 0.5, 0.5);
+	theBox.createBox(1.0, 0.5, 0.5);
+
+	Sphere theSphere;
+	theSphere.createSphere(1.0, 32);
+
+	locationMV = glGetUniformLocation(phongShader.programID, "MV");
+	glUniformMatrix4fv(locationMV, 1, GL_FALSE, I);
 
 	while (!glfwWindowShouldClose(window)) {
 
+		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glUseProgram(phongShader.programID);
 		//glBindVertexArray(vao);
 
-		glColor3f(1.0, 0.0, 0.0);
-		
-		theBox.render();
+		MVstack.push();
+		MVstack.rotZ(2.5);
+		MVstack.rotX(2.5);
+		glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+		theSphere.render();
+		MVstack.pop();
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
