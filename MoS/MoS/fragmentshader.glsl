@@ -1,17 +1,10 @@
-#version 440 core
+#version 400
 
-attribute vec4 v_coord;
-attribute vec3 v_normal;
-varying vec4 position;  // position of the vertex (and fragment) in world space
-varying vec3 varyingNormalDirection;  // surface normal vector in world space
-uniform mat4 m, v, p;
-uniform mat3 m_3x3_inv_transp;
- 
-void main()
+in vec3 interpolatedNormal;
+in vec3 interpolatedColor;
+
+out vec4 frag_colour;
+void main () 
 {
-  position = m * v_coord;
-  varyingNormalDirection = normalize(m_3x3_inv_transp * v_normal);
- 
-  mat4 mvp = p*v*m;
-  gl_Position = mvp * v_coord;
+	frag_colour = vec4(interpolatedColor, 1.0);
 }
