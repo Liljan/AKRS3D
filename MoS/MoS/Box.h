@@ -6,6 +6,17 @@ class Box :
 	public Entity
 {
 public:
+	Box()
+	{
+		vao = 0;
+		vertexbuffer = 0;
+		indexbuffer = 0;
+		vertexarray = NULL;
+		indexarray = NULL;
+		nverts = 0;
+		ntris = 0;
+	};
+
 	Box(glm::vec3 _pos, float _mass, glm::vec3 _dim);
 	~Box(void);
 

@@ -28,16 +28,6 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	//
 	// The data array contains 8 floats per vertex:
 	// coordinate xyz, normal xyz, texcoords st
-	const GLfloat vertex_array_data[] = {
-		-xSize / 2, -ySize / 2, -zSize / 2, // Vertex 0
-		xSize / 2, -ySize / 2, -zSize / 2, // Vertex 1
-		xSize / 2, ySize / 2, -zSize / 2,  // Vertex 2
-		-xSize / 2, ySize / 2, -zSize / 2,  // Vertex 2
-		-xSize / 2, -ySize / 2, zSize / 2,  // Vertex 2
-		xSize / 2, -ySize / 2, zSize / 2,  // Vertex 2
-		xSize / 2, ySize / 2, zSize / 2,  // Vertex 2
-		-xSize / 2, ySize / 2, zSize / 2  // Vertex 2
-	};
 
 	const GLfloat vertex_array_data[] = {
 		//Front (pos z)
@@ -77,34 +67,30 @@ void Box::createBox(float xSize, float ySize, float zSize)
 		-xSize / 2, -ySize / 2, zSize / 2, -1.0f, 0.0f, 0.0f,
 
 		//Top (pos y)
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
+		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
+		-xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
 		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
 
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 0.0f, 1.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 0.0f, 1.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 0.0f, 1.0f,
+		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
+		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
+		xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
 
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 0.0f, 1.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 0.0f, 1.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 0.0f, 1.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 0.0f, 1.0f,
+		//Bottom (neg y)
+		xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
+		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
+		-xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
+
+		xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
+		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
+		xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
 	};
-
-	//const GLfloat vertices[8][3] = { { -xSize / 2, -1.0, -zSize / 2 }, { xSize / 2, -ySize / 2, -zSize / 2 },
-	//{ xSize / 2, ySize / 2, -zSize / 2 }, { -xSize / 2, ySize / 2, -zSize / 2 }, { -xSize / 2, -ySize / 2, zSize / 2 },
-//	{ xSize / 2, -ySize / 2, zSize / 2 }, { xSize / 2, ySize / 2, zSize / 2 }, { -xSize / 2, ySize / 2, zSize / 2 } };
 
 	const GLuint index_array_data[] = {
-		0, 1, 2
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
 	};
 
-	nverts = 3;
-	ntris = 1;
+	nverts = 36;
+	ntris = 12;
 
 	vertexarray = new GLfloat[8 * nverts];
 	indexarray = new GLuint[3 * ntris];
@@ -131,7 +117,7 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	glEnableVertexAttribArray(1); // Normals
-	glEnableVertexAttribArray(2); // Texture coordinates
+	//glEnableVertexAttribArray(2); // Texture coordinates
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
 	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
@@ -143,8 +129,8 @@ void Box::createBox(float xSize, float ySize, float zSize)
 		8 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
 		8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-		8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texcoords
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+	//	8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texcoords
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
@@ -162,7 +148,10 @@ void Box::createBox(float xSize, float ySize, float zSize)
 
 void Box::render()
 {
-
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
+	// (mode, vertex count, type, element array buffer offset)
+	glBindVertexArray(0);
 }
 
 void Box::display(ostream& os) const

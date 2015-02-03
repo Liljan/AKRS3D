@@ -15,6 +15,14 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	angularAcceleration = { 0, 0, 0 };
 }
 
+void Sphere::render()
+{
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
+	// (mode, vertex count, type, element array buffer offset)
+	glBindVertexArray(0);
+}
+
 Sphere::~Sphere(void)
 {
 	cout << "A sphere has died" << endl;
