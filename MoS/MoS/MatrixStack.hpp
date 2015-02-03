@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <glfw3.h>
+#include "Utilities.h"
 
 // A linked list implementing a matrix stack
 struct Matrix {

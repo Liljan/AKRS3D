@@ -14,17 +14,34 @@
 
 using namespace std;
 
+void setupViewport(GLFWwindow *window, GLfloat *P)
+{
+	int width, height;
+
+	glfwGetWindowSize(window, &width, &height);
+
+	P[0] = P[5] * height / width;
+
+	glViewport(0, 0, width, height);
+}
+
 int main()
 {
 	Shader phongShader;
 	MatrixStack MVstack;
 	MVstack.init();
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
-					, 0.0f, 0.5f, 0.0f, 0.0f
-					, 0.0f, 0.0f, 0.5f, 0.0f
+					, 0.0f, 1.0f, 0.0f, 0.0f
+					, 0.0f, 0.0f, 1.0f, 0.0f
 					, 0.0f, 0.0f, 0.0f, 1.0f };
 
+	GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f
+					, 0.0f, 2.42f, 0.0f, 0.0f
+					, 0.0f, 0.0f, -1.0f, -1.0f
+					, 0.0f, 0.0f, -0.2f, 0.0f };
+
 	GLint locationMV;
+	GLint locationP;
 
 	// start GLEW extension handler
 	if (!glfwInit()) {
@@ -75,23 +92,32 @@ int main()
 	theSphere.createSphere(1.0, 32);
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
-	glUniformMatrix4fv(locationMV, 1, GL_FALSE, I);
+	locationP = glGetUniformLocation(phongShader.programID, "P");
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
 
 	while (!glfwWindowShouldClose(window)) {
 
 		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glUseProgram(phongShader.programID);
 		//glBindVertexArray(vao);
 
+		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
+		setupViewport(window, P);
+
 		MVstack.push();
-		MVstack.rotZ(2.5);
-		MVstack.rotX(2.5);
-		glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-		theSphere.render();
+		MVstack.translate(0.0f, 0.0f, -4.5f);
+			MVstack.push();
+				MVstack.rotZ(2.5);
+				MVstack.rotX(2.5);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				theBox.render();
+			MVstack.pop();
 		MVstack.pop();
 
 		glfwPollEvents();
