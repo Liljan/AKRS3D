@@ -1,7 +1,8 @@
 
 
 #include <iostream>
-#include "Utilities.hpp"
+#include "Utilities.h"
+#include "Shader.h"
 #include "TriangleSoup.hpp"
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"

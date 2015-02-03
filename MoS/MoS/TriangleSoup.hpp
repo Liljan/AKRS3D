@@ -1,4 +1,4 @@
-#include "Utilities.hpp"  // To be able to use OpenGL extensions
+#include "Utilities.h"  // To be able to use OpenGL extensions
 
 
 /* A struct to hold geometry data and send it off for rendering */
