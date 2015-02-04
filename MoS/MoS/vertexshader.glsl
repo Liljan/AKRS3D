@@ -23,8 +23,12 @@ vec3(1.0, 1.0, 1.0),
 vec3(1.0, 1.0, 1.0)
 );
 
+// temp, will be uniform vec3
+vec3 objectColor(0.7, 0.7, 0.7);
+
 void main () 
 {
+    // Ambient, diffuse and specular constants. nS is a notation on shininess (higher = more shiny)
 	float kA = 0.3;
 	float kS = 0.7;
 	float kD = 0.8;
@@ -41,6 +45,7 @@ void main ()
 	dLight = max(0, dLight);
 	sLight = max(0, sLight);
 
-	interpolatedColor = kA + kS * pow(sLight, nS) * vec3(0.7, 0.7, 0.7) + dLight * kD * vec3(0.7, 0.7, 0.7);
+    // totalLightinPixel = (Ambient + Diffuse + Specular light)*objectColor
+	interpolatedColor = kA * objectColor + kS * pow(sLight, nS) * objectColor + dLight * kD * objectColor;
 
 }
