@@ -1,94 +1,51 @@
-#version 330 core
+#version 400
+layout(location = 0) in vec3 Position;
+layout(location = 1) in vec3 Normal;
 
-varying vec4 position;  // position of the vertex (and fragment) in world space
-varying vec3 varyingNormalDirection;  // surface normal vector in world space
-uniform mat4 m, v, p;
-uniform mat4 v_inv;
- 
+uniform mat4 MV;
+uniform mat4 P;
+
+uniform vec3 lightPosition;
+
+out vec3 interpolatedColor;
+out vec3 interpolatedNormal;
+
 struct lightSource
 {
-  vec4 position;
-  vec4 diffuse;
-  vec4 specular;
-  float constantAttenuation, linearAttenuation, quadraticAttenuation;
-  float spotCutoff, spotExponent;
-  vec3 spotDirection;
+	vec3 position;
+	vec3 diffuse;
+	vec3 specular;
 };
+
 lightSource light0 = lightSource(
-  vec4(0.0,  1.0,  2.0, 1.0),
-  vec4(1.0,  1.0,  1.0, 1.0),
-  vec4(1.0,  1.0,  1.0, 1.0),
-  0.0, 1.0, 0.0,
-  180.0, 0.0,
-  vec3(0.0, 0.0, 0.0)
+vec3(lightPosition),
+vec3(1.0, 1.0, 1.0),
+vec3(1.0, 1.0, 1.0)
 );
-vec4 scene_ambient = vec4(0.2, 0.2, 0.2, 1.0);
- 
-struct material
+
+// temp, will be uniform vec3
+vec3 objectColor= vec3(0.7, 0.7, 0.7);
+
+void main () 
 {
-  vec4 ambient;
-  vec4 diffuse;
-  vec4 specular;
-  float shininess;
-};
-material frontMaterial = material(
-  vec4(0.2, 0.2, 0.2, 1.0),
-  vec4(1.0, 0.8, 0.8, 1.0),
-  vec4(1.0, 1.0, 1.0, 1.0),
-  5.0
-);
- 
-void main()
-{
-  vec3 normalDirection = normalize(varyingNormalDirection);
-  vec3 viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - position));
-  vec3 lightDirection;
-  float attenuation;
- 
-  if (0.0 == light0.position.w) // directional light?
-    {
-      attenuation = 1.0; // no attenuation
-      lightDirection = normalize(vec3(light0.position));
-    } 
-  else // point light or spotlight (or other kind of light) 
-    {
-      vec3 positionToLightSource = vec3(light0.position - position);
-      float distance = length(positionToLightSource);
-      lightDirection = normalize(positionToLightSource);
-      attenuation = 1.0 / (light0.constantAttenuation
-                           + light0.linearAttenuation * distance
-                           + light0.quadraticAttenuation * distance * distance);
- 
-      if (light0.spotCutoff <= 90.0) // spotlight?
-	{
-	  float clampedCosine = max(0.0, dot(-lightDirection, light0.spotDirection));
-	  if (clampedCosine < cos(radians(light0.spotCutoff))) // outside of spotlight cone?
-	    {
-	      attenuation = 0.0;
-	    }
-	  else
-	    {
-	      attenuation = attenuation * pow(clampedCosine, light0.spotExponent);   
-	    }
-	}
-    }
- 
-  vec3 ambientLighting = vec3(scene_ambient) * vec3(frontMaterial.ambient);
- 
-  vec3 diffuseReflection = attenuation 
-    * vec3(light0.diffuse) * vec3(frontMaterial.diffuse)
-    * max(0.0, dot(normalDirection, lightDirection));
- 
-  vec3 specularReflection;
-  if (dot(normalDirection, lightDirection) < 0.0) // light source on the wrong side?
-    {
-      specularReflection = vec3(0.0, 0.0, 0.0); // no specular reflection
-    }
-  else // light source on the right side
-    {
-      specularReflection = attenuation * vec3(light0.specular) * vec3(frontMaterial.specular) 
-	* pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), frontMaterial.shininess);
-    }
- 
-  gl_FragColor = vec4(ambientLighting + diffuseReflection + specularReflection, 1.0);
+    // Ambient, diffuse and specular constants. nS is a notation on shininess (higher = more shiny)
+	float kA = 0.3;
+	float kS = 0.7;
+	float kD = 0.8;
+	float nS = 15;
+
+	gl_Position = P*MV * vec4 (Position, 1.0);
+	interpolatedNormal = mat3(MV) * Normal;
+
+	vec3 reflection = reflect(normalize(-light0.position), normalize(interpolatedNormal));
+	vec3 cameraPosition = vec3(0.0, 0.0, 1.0);
+	
+	float dLight = dot(normalize(interpolatedNormal), normalize(light0.position));
+	float sLight = dot(reflection, cameraPosition);
+	dLight = max(0, dLight);
+	sLight = max(0, sLight);
+
+    // totalLightinPixel = (Ambient + Diffuse + Specular light)*objectColor
+	interpolatedColor = kA * objectColor + kS * pow(sLight, nS) * objectColor + dLight * kD * objectColor;
+
 }

@@ -3,18 +3,46 @@
 #include <iostream>
 #include "Utilities.h"
 #include "Shader.h"
+#include "MatrixStack.hpp"
 #include "Box.h"
-//#include "GL/glew.h"
-//#include "GLFW/glfw3.h"
+#include "Sphere.h"
 #include "glm\glm.hpp"
 
 #include <SDKDDKVer.h>
 
 using namespace std;
 
+void setupViewport(GLFWwindow *window, GLfloat *P)
+{
+	int width, height;
+
+	glfwGetWindowSize(window, &width, &height);
+
+	P[0] = P[5] * height / width;
+
+	glViewport(0, 0, width, height);
+}
+
 int main()
 {
-	
+	Shader phongShader;
+	MatrixStack MVstack;
+	MVstack.init();
+	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
+					, 0.0f, 1.0f, 0.0f, 0.0f
+					, 0.0f, 0.0f, 1.0f, 0.0f
+					, 0.0f, 0.0f, 0.0f, 1.0f };
+
+	GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f
+					, 0.0f, 2.42f, 0.0f, 0.0f
+					, 0.0f, 0.0f, -1.0f, -1.0f
+					, 0.0f, 0.0f, -0.2f, 0.0f };
+
+	GLfloat L[3] = { 10.0f, 1.0f, 1.0f };
+
+	GLint locationMV;
+	GLint locationP;
+	GLint locationL;
 
 	// start GLEW extension handler
 	if (!glfwInit()) {
@@ -40,11 +68,6 @@ int main()
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 
-	float points[] = {
-		0.0f, -6.0f,
-		0.0f, -0.8f,
-
-	};
 	/*
 	GLuint vbo = 0;
 	glGenBuffers(1, &vbo);
@@ -59,48 +82,51 @@ int main()
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	*/
 
-	const char* vertex_shader =
-		"#version 400\n"
-		"uniform mat4 MV;"
-		"in vec3 vp;"
-		"void main () {"
-		"  gl_Position = MV * vec4 (vp, 1.0);"
-		"}";
-
-	const char* fragment_shader =
-		"#version 400\n"
-		"out vec4 frag_colour;"
-		"void main () {"
-		"  frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);"
-		"}";
-
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertex_shader, NULL);
-	glCompileShader(vs);
-	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragment_shader, NULL);
-	glCompileShader(fs);
+	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 
 
-	GLuint shader_programme = glCreateProgram();
-	glAttachShader(shader_programme, fs);
-	glAttachShader(shader_programme, vs);
-	glLinkProgram(shader_programme);
-
-	glUseProgram(shader_programme);
 
 	Box theBox;
-	theBox.createBox(0.5, 0.5, 0.5);
+	theBox.createBox(1.5f, 0.5f, 0.5f);
 
+	Sphere theSphere;
+	theSphere.createSphere(1.0, 32);
+
+	locationMV = glGetUniformLocation(phongShader.programID, "MV");
+	locationP = glGetUniformLocation(phongShader.programID, "P");
+	locationL = glGetUniformLocation(phongShader.programID, "lightPosition");
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
+	float rot = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 
+		glClearColor(0.0f, 0.1f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glUseProgram(phongShader.programID);
 		//glBindVertexArray(vao);
 
-		glColor3f(1.0, 0.0, 0.0);
-		
-		theBox.render();
+
+		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
+		glUniform3fv(locationL, 1, L);
+
+		setupViewport(window, P);
+
+		MVstack.push();
+		MVstack.translate(0.0f, 0.0f, -4.5f);
+			MVstack.push();
+				MVstack.rotZ(rot);
+				MVstack.rotY(0.1f*rot);
+				MVstack.rotX(0.5f*rot);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				theSphere.render();
+			MVstack.pop();
+		MVstack.pop();
+
+		rot += 0.0001f;
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
