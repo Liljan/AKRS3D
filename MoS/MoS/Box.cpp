@@ -122,17 +122,17 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	};
 
 	static const GLuint index_array_data[] = {
-		0, 1, 2, //Z "ovanifrån" - olle
+		0, 1, 2, //Z-positiv/nära
 		0, 2, 3, //
-		7, 5, 4, //Z undersidan
+		7, 5, 4, //Z-negativ/borta
 		7, 6, 5, //
 		8, 12, 9, //X-negativ/vänster
 		13, 9, 12, //
 		10, 14, 11, //X-positiv/höger
 		11, 14, 15, //
-		17, 21, 18, //Y-positiv/nära
+		17, 21, 18, //Y-positiv/ovan
 		18, 21, 22, //
-		16, 19, 23, //Y-negativ/borta
+		16, 19, 23, //Y-negativ/under
 		20, 16, 23, //  
 	};
 	nverts = 24;

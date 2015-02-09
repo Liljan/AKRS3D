@@ -10,18 +10,6 @@ uniform vec3 lightPosition;
 out vec3 interpolatedColor;
 out vec3 interpolatedNormal;
 
-struct lightSource
-{
-	vec3 position;
-	vec3 diffuse;
-	vec3 specular;
-};
-
-lightSource light0 = lightSource(
-vec3(lightPosition),
-vec3(1.0, 1.0, 1.0),
-vec3(1.0, 1.0, 1.0)
-);
 
 // temp, will be uniform vec3
 vec3 objectColor= vec3(0.7, 0.7, 0.7);
@@ -30,17 +18,18 @@ void main ()
 {
     // Ambient, diffuse and specular constants. nS is a notation on shininess (higher = more shiny)
 	float kA = 0.3;
-	float kS = 0.7;
+	float kS = 0.5;
 	float kD = 0.8;
-	float nS = 15;
+	float nS = 3;
 
 	gl_Position = P*MV * vec4 (Position, 1.0);
 	interpolatedNormal = mat3(MV) * Normal;
+	vec3 lightDirection =  lightPosition - vec3(gl_Position) ;
 
-	vec3 reflection = reflect(normalize(-light0.position), normalize(interpolatedNormal));
-	vec3 cameraPosition = vec3(0.0, 0.0, 1.0);
+	vec3 reflection = reflect(normalize(-lightDirection), normalize(interpolatedNormal));
+	vec3 cameraPosition = vec3(0.0, 0.14, 0.9);
 	
-	float dLight = dot(normalize(interpolatedNormal), normalize(light0.position));
+	float dLight = dot(normalize(interpolatedNormal), normalize(lightDirection));
 	float sLight = dot(reflection, cameraPosition);
 	dLight = max(0, dLight);
 	sLight = max(0, sLight);

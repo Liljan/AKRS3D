@@ -1,12 +1,11 @@
-
-
 #include <iostream>
 #include "Utilities.h"
 #include "Shader.h"
 #include "MatrixStack.hpp"
+#include "physicsHandler.h"
 #include "Box.h"
 #include "Sphere.h"
-#include "glm\glm.hpp"
+#include "Plane.h"
 
 #include <SDKDDKVer.h>
 
@@ -25,20 +24,16 @@ void setupViewport(GLFWwindow *window, GLfloat *P)
 
 int main()
 {
-	Shader phongShader;
-	MatrixStack MVstack;
-	MVstack.init();
+
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
 					, 0.0f, 1.0f, 0.0f, 0.0f
 					, 0.0f, 0.0f, 1.0f, 0.0f
 					, 0.0f, 0.0f, 0.0f, 1.0f };
-
 	GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f
 					, 0.0f, 2.42f, 0.0f, 0.0f
 					, 0.0f, 0.0f, -1.0f, -1.0f
 					, 0.0f, 0.0f, -0.2f, 0.0f };
-
-	GLfloat L[3] = { 10.0f, 1.0f, 1.0f };
+	GLfloat L[3] = { 0.0f, 2.0f, 12.0f };
 
 	GLint locationMV;
 	GLint locationP;
@@ -50,6 +45,7 @@ int main()
 		return 1;
 	}
 
+	//create GLFW window and select context
 	GLFWwindow* window = glfwCreateWindow(640, 480, "Do not try and bend the spoon. That's impossible. Instead... only try to realize the truth.", NULL, NULL);
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
@@ -58,7 +54,7 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
-	// start GLEW extension handler
+	//start GLEW extension handler
 	glewExperimental = GL_TRUE;
 	glewInit();
 
@@ -68,71 +64,72 @@ int main()
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 
-	/*
-	GLuint vbo = 0;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), points, GL_STATIC_DRAW);
+	
 
-	GLuint vao = 0;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	*/
-
+	//Create objects
+	Shader phongShader;
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
-
-
+	MatrixStack MVstack;
+	MVstack.init();
+	physicsHandler theHandler;
 
 	Box theBox;
 	theBox.createBox(1.5f, 0.5f, 0.5f);
 
-	Sphere theSphere;
-	theSphere.createSphere(1.0, 32);
+	Sphere theSphere(glm::vec3(0.0f,6.0f,0.0f), 5.0f, 1.0f);
+	theSphere.createSphere(0.5, 32);
 
+	Sphere the2ndSphere(glm::vec3(2.0f, 6.0f, 0.0f), 5.0f, 1.0f);
+	the2ndSphere.createSphere(0.5, 32);
+
+	Plane thePlane;
+	thePlane.createPlane(5.0f, 5.0f);
+
+	//link variables to shader
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationL = glGetUniformLocation(phongShader.programID, "lightPosition");
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
-	float rot = 0.0f;
-	while (!glfwWindowShouldClose(window)) {
 
+	glm::vec3 pos = glm::vec3(0.0f);
+	while (!glfwWindowShouldClose(window)) {
+		//GL calls
 		glClearColor(0.0f, 0.1f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glUseProgram(phongShader.programID);
-		//glBindVertexArray(vao);
 
-
+		//Send static variables to vertexshader
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
 		glUniform3fv(locationL, 1, L);
 
 		setupViewport(window, P);
 
+		//Transform calculations and rendering
 		MVstack.push();
-		MVstack.translate(0.0f, 0.0f, -4.5f);
+		MVstack.translate(0.0f, -2.0f, -10.5f);
 			MVstack.push();
-				MVstack.rotZ(rot);
-				MVstack.rotY(0.1f*rot);
-				MVstack.rotX(0.5f*rot);
+			MVstack.rotZ(-0.1);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				thePlane.render();
+			MVstack.pop();
+			MVstack.push();
+				glfwPollEvents();
+				pos = theHandler.calculatePosition(theSphere, window);
+				MVstack.translate(pos.x, pos.y, pos.z);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 				theSphere.render();
 			MVstack.pop();
 		MVstack.pop();
 
-		rot += 0.0001f;
 
-		glfwPollEvents();
+		
 		glfwSwapBuffers(window);
 
 	}
-
 
 	glfwTerminate();
 
