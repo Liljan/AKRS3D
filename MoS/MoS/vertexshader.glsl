@@ -28,7 +28,8 @@ void main ()
 
 	vec3 reflection = reflect(normalize(-lightDirection), normalize(interpolatedNormal));
 	vec3 cameraPosition = vec3(0.0, 0.14, 0.9);
-	
+	vec3 cameraDirection =  vec3(gl_Position) - cameraPosition; 
+
 	float dLight = dot(normalize(interpolatedNormal), normalize(lightDirection));
 	float sLight = dot(reflection, cameraPosition);
 	dLight = max(0, dLight);
