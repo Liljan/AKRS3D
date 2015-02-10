@@ -35,49 +35,10 @@ void physicsHandler::calculatePosition(vector<Entity*> *theEntityList, GLFWwindo
 		glm::vec3 currPos = theEntityList->at(i)->getPosition();
 		glm::vec3 currAcc = theEntityList->at(i)->getAcceleration();
 		glm::vec3 currVel = theEntityList->at(i)->getVelocity();
-		glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f)*2.0f;
+		glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f)*0.01f;
 
 		//INPUT CHECK
-
-		if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-
-			currAcc = (gravity + glm::vec3(-40.0f, 0.0f, 0.0f));
-			cout << currVel.x << " " << currVel.y << " " << currVel.z << endl;
-		}
-		else
-		{
-			currAcc = gravity;
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_W)) {
-
-			currAcc = (gravity + glm::vec3(0.0f, 100.0f, 0.0f));
-			cout << currVel.x << " " << currVel.y << " " << currVel.z << endl;
-
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-
-			currAcc = (gravity + glm::vec3(40.0f, 0.0f, 0.0f));
-			cout << currVel.x << " " << currVel.y << " " << currVel.z << endl;
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_S)) {
-
-			currAcc = (gravity + glm::vec3(0.0f, -100.0f, 0.0f));
-			cout << currVel.x << " " << currVel.y << " " << currVel.z << endl;
-		}
-		if (glfwGetKey(window, GLFW_KEY_UP)) {
-
-			currAcc = (gravity + glm::vec3(0.0f, 0.0f, -40.0f));
-			cout << currVel.x << " " << currVel.y << " " << currVel.z << endl;
-		}
-		if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-
-			currAcc = (gravity + glm::vec3(0.0f, 0.0f, 40.0f));
-			cout << currVel.x << " " << currVel.y << " " << currVel.z << endl;
-		}
-
+		currAcc = gravity;
 
 		//EULER CALC 
 		glm::vec3 newVel = currVel + deltaTime*currAcc;

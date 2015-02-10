@@ -13,6 +13,10 @@ Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 	orientation = { 0, 0, 0 };
 	angularVelocity = { 0, 0, 0 };
 	angularAcceleration = { 0, 0, 0 };
+
+	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
 Box::~Box(void)

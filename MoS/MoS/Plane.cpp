@@ -13,6 +13,7 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 	orientation = { 0, 0, 0 };
 	angularVelocity = { 0, 0, 0 };
 	angularAcceleration = { 0, 0, 0 };
+
 }
 
 Plane::~Plane(void)
@@ -22,7 +23,9 @@ Plane::~Plane(void)
 
 void Plane::createPlane(float xSize, float ySize)
 {
-
+	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	GLfloat vertex_array_data[] = {
 		xSize/2.0, 0.0, ySize/2.0, 0.0f , 1.0f , 0.0f,
 		-xSize/2.0, 0.0, -ySize/2.0, 0.0f, 1.0f, 0.0f,
