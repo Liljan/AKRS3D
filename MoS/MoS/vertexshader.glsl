@@ -7,20 +7,17 @@ uniform mat4 P;
 
 uniform vec3 lightPosition;
 uniform vec3 objectPosition;
+uniform vec3 objectColor;
 
 out vec3 interpolatedColor;
 out vec3 interpolatedNormal;
 
-
-// temp, will be uniform vec3
-vec3 objectColor= vec3(0.7, 0.7, 0.7);
-
-void main () 
+void main ()
 {
     // Ambient, diffuse and specular constants. nS is a notation on shininess (higher = more shiny)
 	float kA = 0.3;
 	float kS = 0.5;
-	float kD = 0.8;
+	float kD = 0.3;
 	float nS = 3;
 
 	gl_Position = P * MV * vec4 (Position, 1.0);

@@ -6,6 +6,12 @@
 #include "Box.h"
 #include "Sphere.h"
 #include "Plane.h"
+<<<<<<< HEAD
+=======
+#include "Camera.h"
+
+#include <time.h>
+>>>>>>> experimental
 
 #include <SDKDDKVer.h>
 
@@ -24,6 +30,11 @@ void setupViewport(GLFWwindow *window, GLfloat *P)
 
 int main()
 {
+<<<<<<< HEAD
+=======
+	srand((unsigned)time(NULL));
+
+>>>>>>> experimental
 
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
 					, 0.0f, 1.0f, 0.0f, 0.0f
@@ -33,11 +44,20 @@ int main()
 					, 0.0f, 2.42f, 0.0f, 0.0f
 					, 0.0f, 0.0f, -1.0f, -1.0f
 					, 0.0f, 0.0f, -0.2f, 0.0f };
+<<<<<<< HEAD
 	GLfloat L[3] = { 0.0f, 0.0f, -3.0f };
+=======
+	GLfloat L[3] = { 0.0f, 10.0f, -3.0f };
+	GLfloat C[3];
+>>>>>>> experimental
 
 	GLint locationMV;
 	GLint locationP;
 	GLint locationL;
+<<<<<<< HEAD
+=======
+	GLint locationColor;
+>>>>>>> experimental
 
 	// start GLEW extension handler
 	if (!glfwInit()) {
@@ -71,6 +91,12 @@ int main()
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 	MatrixStack MVstack;
 	MVstack.init();
+<<<<<<< HEAD
+=======
+
+	Camera theCamera;
+
+>>>>>>> experimental
 	physicsHandler theHandler;
 
 	Box theBox;
@@ -83,7 +109,11 @@ int main()
 	the2ndSphere.createSphere(0.5, 32);
 	
 	Plane thePlane;
+<<<<<<< HEAD
 	thePlane.createPlane(5.0f, 5.0f);
+=======
+	thePlane.createPlane(15.0f, 15.0f);
+>>>>>>> experimental
 
 	objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
 	objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
@@ -96,6 +126,10 @@ int main()
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationL = glGetUniformLocation(phongShader.programID, "lightPosition");
+<<<<<<< HEAD
+=======
+	locationColor = glGetUniformLocation(phongShader.programID, "objectColor");
+>>>>>>> experimental
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -108,9 +142,18 @@ int main()
 	glm::vec3 pos = glm::vec3(0.0f);
 	while (!glfwWindowShouldClose(window)) {
 
+<<<<<<< HEAD
 		
 		//GL calls
 		glClearColor(0.0f, 0.1f, 0.0f, 0.0f);
+=======
+		if (glfwGetKey(window, GLFW_KEY_O)) {
+			objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
+		}
+		
+		//GL calls
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+>>>>>>> experimental
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -119,12 +162,17 @@ int main()
 
 		//Send static variables to vertexshader
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
+<<<<<<< HEAD
 		glUniform3fv(locationL, 1, L);
+=======
+		
+>>>>>>> experimental
 
 		setupViewport(window, P);
 
 		//TIME
 		theHandler.calculateTime();
+<<<<<<< HEAD
 
 		//Transform calculations and rendering
 		MVstack.push();
@@ -132,6 +180,26 @@ int main()
 			MVstack.push();
 			MVstack.rotZ(-0.1);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+=======
+		theCamera.poll(window);
+
+		//Transform calculations and rendering
+		MVstack.push();
+		MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad() ));
+		MVstack.rotX(theCamera.getTheta());
+		MVstack.rotY(theCamera.getPhi());
+			MVstack.push();
+			//MVstack.rotZ(-0.1);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+				C[0] = thePlane.getColorR();
+				C[1] = thePlane.getColorG();
+				C[2] = thePlane.getColorB();
+
+				glUniform3fv(locationL, 1, L);
+				glUniform3fv(locationColor, 1, C);
+
+>>>>>>> experimental
 				thePlane.render();
 			MVstack.pop();
 
@@ -147,6 +215,15 @@ int main()
 					MVstack.translate(oPointer->getPosition());
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					oPointer = objectList[i];
+<<<<<<< HEAD
+=======
+
+					C[0] = oPointer->getColorR();
+					C[1] = oPointer->getColorG();
+					C[2] = oPointer->getColorB();
+
+					glUniform3fv(locationColor, 1, C);
+>>>>>>> experimental
 					oPointer->render();
 				MVstack.pop();
 			}

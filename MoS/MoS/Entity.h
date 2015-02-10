@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstdlib>
 
 #include "glm\glm.hpp"
 
@@ -36,6 +37,13 @@ class Entity
 		glm::vec3 getAngularVelocity(){ return angularVelocity; }
 		glm::vec3 getAngularAcceleration(){ return angularAcceleration; }
 
+
+		glm::vec3 getColor(){ return color; }
+		float getColorR(){ return color.x; }
+		float getColorG(){ return color.y; }
+		float getColorB(){ return color.z; }
+
+
 		//setters
 		void setMass(float m){ mass = m; }
 		void setInertia(float i){ inertia = i; }
@@ -68,6 +76,8 @@ class Entity
 		glm::vec3 orientation;
 		glm::vec3 angularVelocity;
 		glm::vec3 angularAcceleration;
+		
+		glm::vec3 color;
 
 		virtual void display(ostream& os) const = 0;
 };

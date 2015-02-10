@@ -15,12 +15,16 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	orientation = { 0, 0, 0 };
 	angularVelocity = { 0, 0, 0 };
 	angularAcceleration = { 0, 0, 0 };
+	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
 
 void Sphere::render()
 {
 	glBindVertexArray(vao);
+	glColor3f(color.x,color.y,color.z);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
