@@ -7,6 +7,8 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	radius = _rad;
 	centerOfMass = position; // The center of mass is in the objects origin as default
 	inertia = 1; // temporary
+
+	createSphere(_rad, 32);
 	
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
@@ -14,6 +16,7 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	angularVelocity = { 0, 0, 0 };
 	angularAcceleration = { 0, 0, 0 };
 }
+
 
 void Sphere::render()
 {

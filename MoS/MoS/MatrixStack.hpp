@@ -39,7 +39,7 @@ public:
     void scale(float s);
 
     // Multiply the topmost (current) matrix with a translation
-    void translate(float x, float y, float z);
+    void translate(glm::vec3 pos);
 
     // Add a new level on the stack, making a copy of the topmost matrix
     void push();

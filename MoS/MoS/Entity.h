@@ -25,6 +25,7 @@ class Entity
 		//getters
 		float getMass(){return mass;}
 		float getInertia(){return inertia;}
+		bool getStatic() { return isStatic; }
 		glm::vec3 getCenterOfMass(){ return centerOfMass; }
 
 		glm::vec3 getPosition(){ return position; }
@@ -51,8 +52,11 @@ class Entity
 		// To print
 		friend ostream& operator<<(ostream &os, const Entity &E);
 
+		virtual void render() = 0; // Calls the TriangleSoup function to render the geometry
+
 	protected:
 
+		bool isStatic;
 		float mass;
 		float inertia;
 		glm::vec3 centerOfMass;
@@ -66,5 +70,4 @@ class Entity
 		glm::vec3 angularAcceleration;
 
 		virtual void display(ostream& os) const = 0;
-		virtual void render() = 0; // Calls the TriangleSoup function to render the geometry
 };
