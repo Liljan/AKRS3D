@@ -35,41 +35,39 @@ void physicsHandler::calculatePosition(vector<Entity*> *theEntityList, GLFWwindo
 		glm::vec3 currPos = theEntityList->at(i)->getPosition();
 		glm::vec3 currAcc = theEntityList->at(i)->getAcceleration();
 		glm::vec3 currVel = theEntityList->at(i)->getVelocity();
-		glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f)*0.1f;
+		glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f)*1.0f;
+
+		currAcc = gravity;
 
 		//INPUT CHECK
 
 		if (glfwGetKey(window, GLFW_KEY_KP_4)) {
 
-			currAcc = (gravity + glm::vec3(-40.0f, 0.0f, 0.0f));
-		}
-		else
-		{
-			currAcc = gravity;
+			currAcc += glm::vec3(-40.0f, 0.0f, 0.0f);
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_KP_9)) {
 
-			currAcc = (gravity + glm::vec3(0.0f, 100.0f, 0.0f));
+			currAcc += glm::vec3(0.0f, 100.0f, 0.0f);
 
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_KP_6)) {
 
-			currAcc = (gravity + glm::vec3(40.0f, 0.0f, 0.0f));
+			currAcc += glm::vec3(40.0f, 0.0f, 0.0f);
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_KP_7)) {
 
-			currAcc = (gravity + glm::vec3(0.0f, -100.0f, 0.0f));
+			currAcc += glm::vec3(0.0f, -100.0f, 0.0f);
 		}
 		if (glfwGetKey(window, GLFW_KEY_KP_8)) {
 
-			currAcc = (gravity + glm::vec3(0.0f, 0.0f, -40.0f));
+			currAcc += glm::vec3(0.0f, 0.0f, -40.0f);
 		}
 		if (glfwGetKey(window, GLFW_KEY_KP_2)) {
 
-			currAcc = (gravity + glm::vec3(0.0f, 0.0f, 40.0f));
+			currAcc += glm::vec3(0.0f, 0.0f, 40.0f);
 
 		}
 
@@ -137,19 +135,21 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 				coSystem = glm::mat4(glm::vec4(normal, 0.0f), glm::vec4(p1Normal, 0.0f), glm::vec4(p2Normal, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 				
-				reflectedNewVel_1 = glm::vec4(glm::reflect(iVel, normal), 1.0f);
+				//reflectedNewVel_1 = glm::vec4(glm::reflect(iVel, normal), 1.0f);
+				reflectedNewVel_1 = glm::vec4(iVel, 1.0f);
 				nreflectedNewVel_1 = glm::inverse(coSystem)*reflectedNewVel_1;
 				
-				reflectedNewVel_2 = glm::vec4(glm::reflect(jVel, -normal), 1.0f);
+				//reflectedNewVel_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
+				reflectedNewVel_2 = glm::vec4(jVel, 1.0f);
 				nreflectedNewVel_2 = glm::inverse(coSystem)*reflectedNewVel_2;
 				
 				diffVel = nreflectedNewVel_1.x - nreflectedNewVel_2.x;
 
-				nreflectedNewVel_1 = glm::vec4((nreflectedNewVel_1.x+diffVel)*0.6f, nreflectedNewVel_1.y, nreflectedNewVel_1.z, 1.0f);
+				nreflectedNewVel_1 = glm::vec4((nreflectedNewVel_1.x-diffVel), nreflectedNewVel_1.y, nreflectedNewVel_1.z, 1.0f);
 				reflectedNewVel_1 = coSystem*nreflectedNewVel_1;
 				theEntityList->at(i)->setVelocity(glm::vec3(reflectedNewVel_1));
 
-				nreflectedNewVel_2 = glm::vec4((nreflectedNewVel_2.x-diffVel)*0.5f, nreflectedNewVel_2.y, nreflectedNewVel_2.z, 1.0f);
+				nreflectedNewVel_2 = glm::vec4((nreflectedNewVel_2.x+diffVel), nreflectedNewVel_2.y, nreflectedNewVel_2.z, 1.0f);
 				reflectedNewVel_2 = coSystem*nreflectedNewVel_2;
 				theEntityList->at(j)->setVelocity(glm::vec3(reflectedNewVel_2));
 

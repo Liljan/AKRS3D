@@ -16,7 +16,7 @@ out vec3 interpolatedNormal;
 void main () 
 {
     // Ambient, diffuse and specular constants. nS is a notation on shininess (higher = more shiny)
-	float kA = 0.3;
+	float kA = 0.1;
 	float kS = 0.5;
 	float kD = 0.3;
 	float nS = 3;

@@ -146,6 +146,7 @@ int main()
 		MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad() ));
 		MVstack.rotX(theCamera.getTheta());
 		MVstack.rotY(theCamera.getPhi());
+
 			MVstack.push();
 			//MVstack.rotZ(-0.1);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
