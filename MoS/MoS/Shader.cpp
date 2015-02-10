@@ -1,67 +1,159 @@
 #include "Shader.h"
 
-
-Shader::Shader()
-{
+/*
+* Constructor without arguments.
+* Creates an "empty" (invalid) shader program.
+*/
+Shader::Shader() {
 	this->programID = 0;
-
 }
 
 
-Shader::~Shader()
-{
+/*
+* Constructor with two file name arguments:
+* one for the vertex shader, one for the fragment shader.
+* Loads the named files, compiles the shaders and
+* assembles the shader program.
+*/
+Shader::Shader(const char *vertexshaderfile, const char *fragmentshaderfile) {
+	this->createShader(vertexshaderfile, fragmentshaderfile);
+}
+
+
+/*
+* Destructor.
+* Cleans up by deleting the program if it was compiled.
+*/
+Shader::~Shader() {
 	if (programID != 0)
-	glDeleteProgram(programID);
+		glDeleteProgram(programID);
 }
 
 
-void Shader::createShader()
-{
-	const char* vertex_shader =
-		"#version 440\n"
-		"layout(location = 0) in vec3 Position;"
-		"layout(location = 1) in vec3 Normal;"
+/*
+* createShader() - create, load, compile and link the GLSL Shader objects.
+*/
+void Shader::createShader(const char *vertexshaderfile, const char *fragmentshaderfile) {
 
-		"uniform mat4 MV;"
-		"uniform mat4 P;"
-		//"in vec3 vp;"
+	GLuint programObject;
+	GLuint vertexShader;
+	GLuint fragmentShader;
+	const char *vertexShaderStrings[1];
+	const char *fragmentShaderStrings[1];
+	unsigned char *vertexShaderAssembly;
+	unsigned char *fragmentShaderAssembly;
 
-		"out vec3 interpolatedNormal;"
+	GLint vertexCompiled;
+	GLint fragmentCompiled;
+	GLint shadersLinked;
+	char str[4096]; // For error messages from the GLSL compiler and linker
 
-		"void main () {"
-		"  gl_Position = MV * vec4 (vp, 1.0);"
-		"interpolatedNormal = mat3(MV) * Normal;"
+	// If a program is already stored in this object, delete it
+	if (programID != 0)
+		glDeleteProgram(programID);
 
-		"}";
+	// Create the vertex shader.
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
-	const char* fragment_shader =
-		"#version 440\n"
+	vertexShaderAssembly = readShaderFile(vertexshaderfile);
+	if (vertexShaderAssembly) { // Don't try to use a NULL pointer
+		vertexShaderStrings[0] = (char*)vertexShaderAssembly;
+		glShaderSource(vertexShader, 1, vertexShaderStrings, NULL);
+		glCompileShader(vertexShader);
+		delete[] vertexShaderAssembly;
+	}
 
-		"in vec3 interpolatedNormal;"
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS,
+		&vertexCompiled);
+	if (vertexCompiled == GL_FALSE)
+	{
+		glGetShaderInfoLog(vertexShader, sizeof(str), NULL, str);
+		printError("Vertex shader compile error", str);
+	}
 
-		"out vec4 frag_colour;"
-		"void main () {"
-		"vec3 nNormal = normalize(interpolatedNormal);"
-		"float diffuse = max(0.0, nNormal.z);"
-		"  frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);"
-		"}";
+	// Create the fragment shader.
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertex_shader, NULL);
-	glCompileShader(vs);
-	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragment_shader, NULL);
-	glCompileShader(fs);
+	fragmentShaderAssembly = readShaderFile(fragmentshaderfile);
+	if (fragmentShaderAssembly) { // Don't try to use a NULL pointer
+		fragmentShaderStrings[0] = (char*)fragmentShaderAssembly;
+		glShaderSource(fragmentShader, 1, fragmentShaderStrings, NULL);
+		glCompileShader(fragmentShader);
+		delete[] fragmentShaderAssembly;
+	}
+
+	glGetProgramiv(fragmentShader, GL_COMPILE_STATUS, &fragmentCompiled);
+	if (fragmentCompiled == GL_FALSE)
+	{
+		glGetShaderInfoLog(fragmentShader, sizeof(str), NULL, str);
+		printError("Fragment shader compile error", str);
+	}
+
+	// Create a program object and attach the two compiled shaders.
+	programObject = glCreateProgram();
+	glAttachShader(programObject, vertexShader);
+	glAttachShader(programObject, fragmentShader);
+
+	// Link the program object and print out the info log.
+	glLinkProgram(programObject);
+	glGetProgramiv(programObject, GL_LINK_STATUS, &shadersLinked);
+
+	if (shadersLinked == GL_FALSE)
+	{
+		glGetProgramInfoLog(programObject, sizeof(str), NULL, str);
+		printError("Program object linking error", str);
+	}
+	glDeleteShader(vertexShader);   // After successful linking,
+	glDeleteShader(fragmentShader); // these are no longer needed
+
+	programID = programObject; // Save this value in the class variable
+}
 
 
-	GLuint shader_programme = glCreateProgram();
-	glAttachShader(shader_programme, fs);
-	glAttachShader(shader_programme, vs);
-	glLinkProgram(shader_programme);
+/*
+* private
+* printError() - Signal an error.
+* Simple printf() to console for portability.
+*/
+void Shader::printError(const char *errtype, const char *errmsg) {
+	fprintf(stderr, "%s: %s\n", errtype, errmsg);
+}
 
-	glDeleteShader(vs);   // After successful linking,
-	glDeleteShader(fs); // these are no longer needed
 
-	programID = shader_programme;
+/*
+* private
+* filelength()
+* Override the Win32 filelength() function with
+* a version that takes a Unix-style file handle as
+* input instead of a file ID number, and which works
+* on platforms other than Windows.
+*/
+long Shader::filelength(FILE *file) {
+	long numbytes;
+	long savedpos = ftell(file); // Remember where we are
+	fseek(file, 0, SEEK_END);    // Fast forward to the end
+	numbytes = ftell(file);      // Index of last byte in file
+	fseek(file, savedpos, SEEK_SET); // Get back to where we were
+	return numbytes;             // This is the file length
+}
 
+
+/*
+* private
+* readShaderFile(filename) - read a shader source string from a file
+*/
+unsigned char* Shader::readShaderFile(const char *filename) {
+	FILE *file = fopen(filename, "r");
+	if (file == NULL)
+	{
+		printError("ERROR", "Cannot open shader file!");
+		return 0;
+	}
+	int bytesinfile = filelength(file);
+	unsigned char *buffer = new unsigned char[bytesinfile + 1];
+	int bytesread = fread(buffer, 1, bytesinfile, file);
+	buffer[bytesread] = 0; // Terminate the string with 0
+	fclose(file);
+
+	return buffer;
 }

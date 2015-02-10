@@ -83,15 +83,15 @@ void MatrixStack::scale(float s) {
 };
 
 // Multiply the topmost (current) matrix with a translation
-void MatrixStack::translate(float x, float y, float z) {
+void MatrixStack::translate(glm::vec3 pos) {
     float t_mtx[16] = {0};
     t_mtx[0] = 1.0f;
     t_mtx[5] = 1.0f;
     t_mtx[10] = 1.0f;
     t_mtx[15] = 1.0f;
-    t_mtx[12] = x;
-    t_mtx[13] = y;
-    t_mtx[14] = z;
+    t_mtx[12] = pos.x;
+    t_mtx[13] = pos.y;
+    t_mtx[14] = pos.z;
     matrixMult(currentMatrix->m, t_mtx, currentMatrix->m);
 };
 

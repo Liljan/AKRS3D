@@ -1,16 +1,12 @@
 #pragma once
 #include "entity.h"
 #include "Utilities.h"
-class Sphere :
+
+class Plane :
 	public Entity
 {
 public:
-	
-	// Creates a sphere  
-	Sphere(glm::vec3 _pos, float _mass, float _rad);
-	~Sphere(void);
-
-	Sphere()
+	Plane()
 	{
 		vao = 0;
 		vertexbuffer = 0;
@@ -21,10 +17,13 @@ public:
 		ntris = 0;
 	};
 
-	void createSphere(float radius, int segments);
-	void render();
+	Plane(glm::vec3 _pos, float _mass, glm::vec3 _dim);
+	~Plane(void);
 
-	float getRadius(){return radius;}
+	void createPlane(float xSize, float ySize);
+
+	void render();
+	glm::vec3 getDim(){ return dim; }
 
 private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
@@ -35,6 +34,7 @@ private:
 	GLfloat *vertexarray; // Vertex array on interleaved format: x y z nx ny nz s t
 	GLuint *indexarray;   // Element index array
 
-	float radius;
+	glm::vec3 dim;
+
 	void display(ostream& os) const;
 };

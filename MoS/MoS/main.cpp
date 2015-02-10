@@ -1,20 +1,43 @@
-
-
 #include <iostream>
 #include "Utilities.h"
 #include "Shader.h"
+#include "MatrixStack.hpp"
+#include "physicsHandler.h"
 #include "Box.h"
-//#include "GL/glew.h"
-//#include "GLFW/glfw3.h"
-#include "glm\glm.hpp"
+#include "Sphere.h"
+#include "Plane.h"
 
 #include <SDKDDKVer.h>
 
 using namespace std;
 
+void setupViewport(GLFWwindow *window, GLfloat *P)
+{
+	int width, height;
+
+	glfwGetWindowSize(window, &width, &height);
+
+	P[0] = P[5] * height / width;
+
+	glViewport(0, 0, width, height);
+}
+
 int main()
 {
-	
+
+	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
+					, 0.0f, 1.0f, 0.0f, 0.0f
+					, 0.0f, 0.0f, 1.0f, 0.0f
+					, 0.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f
+					, 0.0f, 2.42f, 0.0f, 0.0f
+					, 0.0f, 0.0f, -1.0f, -1.0f
+					, 0.0f, 0.0f, -0.2f, 0.0f };
+	GLfloat L[3] = { 0.0f, 0.0f, -3.0f };
+
+	GLint locationMV;
+	GLint locationP;
+	GLint locationL;
 
 	// start GLEW extension handler
 	if (!glfwInit()) {
@@ -22,6 +45,7 @@ int main()
 		return 1;
 	}
 
+	//create GLFW window and select context
 	GLFWwindow* window = glfwCreateWindow(640, 480, "Do not try and bend the spoon. That's impossible. Instead... only try to realize the truth.", NULL, NULL);
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
@@ -30,7 +54,7 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
-	// start GLEW extension handler
+	//start GLEW extension handler
 	glewExperimental = GL_TRUE;
 	glewInit();
 
@@ -40,73 +64,98 @@ int main()
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 
-	float points[] = {
-		0.0f, -6.0f,
-		0.0f, -0.8f,
+	//Create objects
+	std::vector<Entity*> objectList;
 
-	};
-	/*
-	GLuint vbo = 0;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), points, GL_STATIC_DRAW);
-
-	GLuint vao = 0;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	*/
-
-	const char* vertex_shader =
-		"#version 400\n"
-		"uniform mat4 MV;"
-		"in vec3 vp;"
-		"void main () {"
-		"  gl_Position = MV * vec4 (vp, 1.0);"
-		"}";
-
-	const char* fragment_shader =
-		"#version 400\n"
-		"out vec4 frag_colour;"
-		"void main () {"
-		"  frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);"
-		"}";
-
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertex_shader, NULL);
-	glCompileShader(vs);
-	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragment_shader, NULL);
-	glCompileShader(fs);
-
-
-	GLuint shader_programme = glCreateProgram();
-	glAttachShader(shader_programme, fs);
-	glAttachShader(shader_programme, vs);
-	glLinkProgram(shader_programme);
-
-	glUseProgram(shader_programme);
+	Shader phongShader;
+	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
+	MatrixStack MVstack;
+	MVstack.init();
+	physicsHandler theHandler;
 
 	Box theBox;
-	theBox.createBox(0.5, 0.5, 0.5);
+	theBox.createBox(1.5f, 0.5f, 0.5f);
 
+	Sphere theSphere(glm::vec3(0.0f,5.0f,0.0f), 5.0f, 1.0f);
+	theSphere.createSphere(0.5, 32);
+
+	Sphere the2ndSphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 1.0f);
+	the2ndSphere.createSphere(0.5, 32);
+	
+	Plane thePlane;
+	thePlane.createPlane(5.0f, 5.0f);
+
+	objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
+	objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
+
+	//objectList.push_back(the2ndSphere);
+	//objectList.push_back(thePlane);
+	//objectList.push_back(theBox);
+
+	//link variables to shader
+	locationMV = glGetUniformLocation(phongShader.programID, "MV");
+	locationP = glGetUniformLocation(phongShader.programID, "P");
+	locationL = glGetUniformLocation(phongShader.programID, "lightPosition");
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	Entity *oPointer;
+	vector<Entity*> *vPointer;
+	vPointer = &objectList;
+
+
+	oPointer = &theSphere;
+	glm::vec3 pos = glm::vec3(0.0f);
 	while (!glfwWindowShouldClose(window)) {
 
+		
+		//GL calls
+		glClearColor(0.0f, 0.1f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		//glBindVertexArray(vao);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glUseProgram(phongShader.programID);
 
-		glColor3f(1.0, 0.0, 0.0);
-		
-		theBox.render();
+		//Send static variables to vertexshader
+		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
+		glUniform3fv(locationL, 1, L);
 
-		glfwPollEvents();
+		setupViewport(window, P);
+
+		//TIME
+		theHandler.calculateTime();
+
+		//Transform calculations and rendering
+		MVstack.push();
+		MVstack.translate(glm::vec3(0.0f, -2.0f, -10.5f));
+			MVstack.push();
+			MVstack.rotZ(-0.1);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				thePlane.render();
+			MVstack.pop();
+
+		//	oPointer = objectList[i];
+
+			theHandler.calculatePosition(vPointer, window);
+			theHandler.resolveCollision(vPointer);
+
+			for (int i = 0; i < vPointer->size(); i++)
+			{
+				MVstack.push();
+					glfwPollEvents();	
+					MVstack.translate(oPointer->getPosition());
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					oPointer = objectList[i];
+					oPointer->render();
+				MVstack.pop();
+			}
+
+		MVstack.pop();
+
 		glfwSwapBuffers(window);
 
 	}
-
 
 	glfwTerminate();
 
