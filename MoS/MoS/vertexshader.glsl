@@ -19,7 +19,7 @@ void main ()
 	float kA = 0.3;
 	float kS = 0.5;
 	float kD = 0.3;
-	float nS = 10;
+	float nS = 3;
 
 	gl_Position = P * MV * vec4 (Position, 1.0);
 	interpolatedNormal = mat3(MV) * Normal;

@@ -23,9 +23,9 @@ Plane::~Plane(void)
 
 void Plane::createPlane(float xSize, float ySize)
 {
-	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.x = 0.7;
+	color.y = 0.7;
+	color.z = 0.7;
 	GLfloat vertex_array_data[] = {
 		xSize/2.0, 0.0, ySize/2.0, 0.0f , 1.0f , 0.0f,
 		-xSize/2.0, 0.0, -ySize/2.0, 0.0f, 1.0f, 0.0f,

@@ -93,7 +93,7 @@ int main()
 	the2ndSphere.createSphere(0.5, 32);
 	
 	Plane thePlane;
-	thePlane.createPlane(5.0f, 5.0f);
+	thePlane.createPlane(15.0f, 15.0f);
 
 	objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
 	objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
@@ -119,6 +119,9 @@ int main()
 	glm::vec3 pos = glm::vec3(0.0f);
 	while (!glfwWindowShouldClose(window)) {
 
+		if (glfwGetKey(window, GLFW_KEY_O)) {
+			objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
+		}
 		
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -144,7 +147,7 @@ int main()
 		MVstack.rotX(theCamera.getTheta());
 		MVstack.rotY(theCamera.getPhi());
 			MVstack.push();
-			MVstack.rotZ(-0.1);
+			//MVstack.rotZ(-0.1);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				C[0] = thePlane.getColorR();
