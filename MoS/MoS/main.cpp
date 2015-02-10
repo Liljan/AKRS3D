@@ -8,6 +8,8 @@
 #include "Plane.h"
 #include "Camera.h"
 
+#include <time.h>
+
 #include <SDKDDKVer.h>
 
 using namespace std;
@@ -25,6 +27,8 @@ void setupViewport(GLFWwindow *window, GLfloat *P)
 
 int main()
 {
+	srand((unsigned)time(NULL));
+
 
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
 					, 0.0f, 1.0f, 0.0f, 0.0f
@@ -34,11 +38,13 @@ int main()
 					, 0.0f, 2.42f, 0.0f, 0.0f
 					, 0.0f, 0.0f, -1.0f, -1.0f
 					, 0.0f, 0.0f, -0.2f, 0.0f };
-	GLfloat L[3] = { 0.0f, 0.0f, -3.0f };
+	GLfloat L[3] = { 0.0f, 10.0f, -3.0f };
+	GLfloat C[3];
 
 	GLint locationMV;
 	GLint locationP;
 	GLint locationL;
+	GLint locationColor;
 
 	// start GLEW extension handler
 	if (!glfwInit()) {
@@ -100,6 +106,7 @@ int main()
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationL = glGetUniformLocation(phongShader.programID, "lightPosition");
+	locationColor = glGetUniformLocation(phongShader.programID, "objectColor");
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -114,7 +121,7 @@ int main()
 
 		
 		//GL calls
-		glClearColor(0.0f, 0.1f, 0.0f, 0.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -123,7 +130,7 @@ int main()
 
 		//Send static variables to vertexshader
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
-		glUniform3fv(locationL, 1, L);
+		
 
 		setupViewport(window, P);
 
@@ -139,6 +146,14 @@ int main()
 			MVstack.push();
 			MVstack.rotZ(-0.1);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+				C[0] = thePlane.getColorR();
+				C[1] = thePlane.getColorG();
+				C[2] = thePlane.getColorB();
+
+				glUniform3fv(locationL, 1, L);
+				glUniform3fv(locationColor, 1, C);
+
 				thePlane.render();
 			MVstack.pop();
 
@@ -154,6 +169,12 @@ int main()
 					MVstack.translate(oPointer->getPosition());
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					oPointer = objectList[i];
+
+					C[0] = oPointer->getColorR();
+					C[1] = oPointer->getColorG();
+					C[2] = oPointer->getColorB();
+
+					glUniform3fv(locationColor, 1, C);
 					oPointer->render();
 				MVstack.pop();
 			}

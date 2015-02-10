@@ -4,7 +4,7 @@
 Camera::Camera()
 {
 	phi = 0.0f;
-	theta = 45.0f;
+	theta = PI / 4.0f;
 	rad = 5.0f;
 
 	zoomFactor = PI;
@@ -51,14 +51,15 @@ else
 }
 
 if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-	phi += deltaTime*PI / 2.0; // Rotate 90 degrees per second (pi/2)
+	phi -= deltaTime*PI / 2.0; // Rotate 90 degrees per second (pi/2)
 	phi = fmod(phi, PI*2.0); // Wrap around at 360 degrees (2*pi)
+	if (phi < 0.0) phi += PI*2.0; // If phi<0, then fmod(phi,2*pi)<0
 }
 if (glfwGetKey(window, GLFW_KEY_LEFT))
 {
-	phi -= deltaTime*PI / 2.0; // Rotate 90 degrees per second (pi/2)
+	phi += deltaTime*PI / 2.0; // Rotate 90 degrees per second (pi/2)
 	phi = fmod(phi, PI*2.0);
-	if (phi < 0.0) phi += PI*2.0; // If phi<0, then fmod(phi,2*pi)<0
+	
 }
 
 }
