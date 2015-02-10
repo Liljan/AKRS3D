@@ -6,6 +6,7 @@
 #include "Box.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Camera.h"
 
 #include <SDKDDKVer.h>
 
@@ -71,6 +72,9 @@ int main()
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 	MatrixStack MVstack;
 	MVstack.init();
+
+	Camera theCamera;
+
 	physicsHandler theHandler;
 
 	Box theBox;
@@ -125,10 +129,13 @@ int main()
 
 		//TIME
 		theHandler.calculateTime();
+		theCamera.poll(window);
 
 		//Transform calculations and rendering
 		MVstack.push();
-		MVstack.translate(glm::vec3(0.0f, -2.0f, -10.5f));
+		MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad() ));
+		MVstack.rotX(theCamera.getTheta());
+		MVstack.rotY(theCamera.getPhi());
 			MVstack.push();
 			MVstack.rotZ(-0.1);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
