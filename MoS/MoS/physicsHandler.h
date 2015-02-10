@@ -14,6 +14,10 @@ public:
 
 	void integrate();
 
+	void handleKeyInput(GLFWwindow *window);
+
+	void eulerCalc(Entity *E);
+
 	//void addObject(Entity& theEntity);
 
 	void resolveCollision(vector<Entity*> *theEntityList);
@@ -23,7 +27,13 @@ public:
 	float getTime(){ return currTime; }
 
 private:
-	float currTime = 0.0;
-	float deltaTime = 0.0;
+	float currTime;
+	float deltaTime;
+
+	glm::vec3 currPos;
+	glm::vec3 currAcc;
+	glm::vec3 currVel;
+	glm::vec3 gravity;
+
 };
 

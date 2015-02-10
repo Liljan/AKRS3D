@@ -7,6 +7,10 @@
 
 physicsHandler::physicsHandler()
 {
+	currTime = 0.0f;
+	deltaTime = 0.0f;
+
+	gravity = glm::vec3(0.0f, -9.81f, 0.0f)*1.0f;
 }
 
 
@@ -32,57 +36,57 @@ void physicsHandler::calculatePosition(vector<Entity*> *theEntityList, GLFWwindo
 
 	for (int i = 0; i < theEntityList->size(); i++)
 	{
-		glm::vec3 currPos = theEntityList->at(i)->getPosition();
-		glm::vec3 currAcc = theEntityList->at(i)->getAcceleration();
-		glm::vec3 currVel = theEntityList->at(i)->getVelocity();
-		glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f)*1.0f;
+		currPos = theEntityList->at(i)->getPosition();
+		currAcc = theEntityList->at(i)->getAcceleration();
+		currVel = theEntityList->at(i)->getVelocity();
+		
 
 		currAcc = gravity;
 
-		//INPUT CHECK
-
-		if (glfwGetKey(window, GLFW_KEY_KP_4)) {
-
-			currAcc += glm::vec3(-40.0f, 0.0f, 0.0f);
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_KP_9)) {
-
-			currAcc += glm::vec3(0.0f, 100.0f, 0.0f);
-
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_KP_6)) {
-
-			currAcc += glm::vec3(40.0f, 0.0f, 0.0f);
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_KP_7)) {
-
-			currAcc += glm::vec3(0.0f, -100.0f, 0.0f);
-		}
-		if (glfwGetKey(window, GLFW_KEY_KP_8)) {
-
-			currAcc += glm::vec3(0.0f, 0.0f, -40.0f);
-		}
-		if (glfwGetKey(window, GLFW_KEY_KP_2)) {
-
-			currAcc += glm::vec3(0.0f, 0.0f, 40.0f);
-
-		}
-
-
-		//EULER CALC 
-		glm::vec3 newVel = currVel + deltaTime*currAcc;
-		glm::vec3 newPos = currPos + deltaTime*newVel;
-
-		theEntityList->at(i)->setAcceleration(currAcc);
-		theEntityList->at(i)->setVelocity(newVel);
-		theEntityList->at(i)->setPosition(newPos);
+		handleKeyInput(window); 
+		eulerCalc(theEntityList->at(i));
 	}
-
 }
 
+void physicsHandler::handleKeyInput(GLFWwindow *window)
+{
+	if (glfwGetKey(window, GLFW_KEY_KP_4)) {
+		currAcc += glm::vec3(-40.0f, 0.0f, 0.0f);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_KP_9)) {
+		currAcc += glm::vec3(0.0f, 40.0f, 0.0f);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_KP_6)) {
+		currAcc += glm::vec3(40.0f, 0.0f, 0.0f);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_KP_7)) {
+		currAcc += glm::vec3(0.0f, -40.0f, 0.0f);
+	}
+	if (glfwGetKey(window, GLFW_KEY_KP_8)) {
+		currAcc += glm::vec3(0.0f, 0.0f, -40.0f);
+	}
+	if (glfwGetKey(window, GLFW_KEY_KP_2)) {
+		currAcc += glm::vec3(0.0f, 0.0f, 40.0f);
+	}
+
+	// Det ballar ur
+	if (glfwGetKey(window, GLFW_KEY_C)){
+		currAcc = 10.0f*(glm::vec3(0.0f, 0.2f, 0.0f) - currPos);
+	}
+}
+
+void physicsHandler::eulerCalc(Entity* E)
+{
+	glm::vec3 newVel = currVel + deltaTime*currAcc;
+	glm::vec3 newPos = currPos + deltaTime*newVel;
+
+	E->setAcceleration(currAcc);
+	E->setVelocity(newVel);
+	E->setPosition(newPos);
+}
 void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 {
 	glm::vec3 iVel;
@@ -127,7 +131,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 			{
 				float move = (rad1 + rad2 - vLength);
 
-				move = move / 2.0f;
+				move /= 2.0f;
 
 				normal = posVector;
 				p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));

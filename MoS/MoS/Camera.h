@@ -5,7 +5,7 @@
 class Camera
 {
 public:
-	Camera();
+	Camera(float _rad);
 	~Camera();
 
 	void init(GLFWwindow *window);

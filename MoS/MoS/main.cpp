@@ -27,8 +27,14 @@ void setupViewport(GLFWwindow *window, GLfloat *P)
 
 int main()
 {
+	// time related variables
 	srand((unsigned)time(NULL));
+	double timeSinceAction = glfwGetTime();
+	double deltaTime;
 
+	float rand1, rand2;
+
+	// GL-related variables
 
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
 					, 0.0f, 1.0f, 0.0f, 0.0f
@@ -79,7 +85,7 @@ int main()
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Camera theCamera;
+	Camera theCamera(15.0f);
 
 	physicsHandler theHandler;
 
@@ -114,13 +120,34 @@ int main()
 	vector<Entity*> *vPointer;
 	vPointer = &objectList;
 
-
 	oPointer = &theSphere;
 	glm::vec3 pos = glm::vec3(0.0f);
 	while (!glfwWindowShouldClose(window)) {
 
+		// generate random coordinates
+		rand1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		rand2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+		deltaTime = glfwGetTime() - timeSinceAction;
+
+		// Add balls to scene
 		if (glfwGetKey(window, GLFW_KEY_O)) {
+			objectList.push_back(new Sphere(glm::vec3(0.0f*rand1, 8.0f, 0.0f*rand2), 5.0f, 0.5f));
+			std::cout << "Number of objects: " << objectList.size() << std::endl;
+		}
+		// Remove one ball
+		if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1  && deltaTime > 0.1) {
+			objectList.erase(objectList.end() - 1);
+			std::cout << "Number of objects: " << objectList.size() << std::endl;
+			
+			timeSinceAction = glfwGetTime();
+		}
+		// Flush your balls
+		if (glfwGetKey(window, GLFW_KEY_DELETE) )
+		{
+			objectList.clear();
 			objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
+			system("cls");
 		}
 		
 		//GL calls
@@ -134,7 +161,6 @@ int main()
 		//Send static variables to vertexshader
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
 		
-
 		setupViewport(window, P);
 
 		//TIME
@@ -184,6 +210,9 @@ int main()
 			}
 
 		MVstack.pop();
+
+		// Time
+		
 
 		glfwSwapBuffers(window);
 
