@@ -6,6 +6,7 @@ uniform mat4 MV;
 uniform mat4 P;
 
 uniform vec3 lightPosition;
+uniform vec3 objectPosition;
 
 out vec3 interpolatedColor;
 out vec3 interpolatedNormal;
@@ -22,20 +23,27 @@ void main ()
 	float kD = 0.8;
 	float nS = 3;
 
-	gl_Position = P*MV * vec4 (Position, 1.0);
+	gl_Position = P * MV * vec4 (Position, 1.0);
 	interpolatedNormal = mat3(MV) * Normal;
 	vec3 lightDirection =  lightPosition - vec3(gl_Position) ;
+	lightDirection.z = -lightDirection.z;
 
 	vec3 reflection = reflect(normalize(-lightDirection), normalize(interpolatedNormal));
-	vec3 cameraPosition = vec3(0.0, 0.14, 0.9);
-	vec3 cameraDirection =  vec3(gl_Position) - cameraPosition; 
-
+	vec3 cameraDirection = -vec3(gl_Position);
+	
+	float sLight;
 	float dLight = dot(normalize(interpolatedNormal), normalize(lightDirection));
-	float sLight = dot(reflection, cameraPosition);
-	dLight = max(0, dLight);
+	if (dot(interpolatedNormal, lightDirection) < 0.0) {
+		sLight = 0.0;
+	}
+	else {
+		sLight = dot(normalize(reflection), normalize(cameraDirection));
 	sLight = max(0, sLight);
+	}
+	
+	dLight = max(0, dLight);
 
     // totalLightinPixel = (Ambient + Diffuse + Specular light)*objectColor
-	interpolatedColor = kA * objectColor + kS * pow(sLight, nS) * objectColor + dLight * kD * objectColor;
+	interpolatedColor = kA * objectColor + kS * pow(sLight, nS) * objectColor + kD * dLight * objectColor;
 
 }
