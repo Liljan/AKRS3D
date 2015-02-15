@@ -73,9 +73,14 @@ void physicsHandler::handleKeyInput(GLFWwindow *window)
 	}
 
 	// Det ballar ur
-	if (glfwGetKey(window, GLFW_KEY_C)){
+	if (glfwGetKey(window, GLFW_KEY_C)) {
 		currAcc = 10.0f*(glm::vec3(0.0f, 0.2f, 0.0f) - currPos);
 	}
+    // Freeze
+    if (glfwGetKey(window, GLFW_KEY_C)) {
+        currAcc = glm::vec3(0.0f, 0.0f, 0.0f);
+        currVel = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
 }
 
 void physicsHandler::eulerCalc(Entity* E)
