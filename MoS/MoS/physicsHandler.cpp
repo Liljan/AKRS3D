@@ -3,8 +3,6 @@
 #include "Box.h"
 #include <iostream>
 
-
-
 physicsHandler::physicsHandler()
 {
 	currTime = 0.0f;
@@ -40,7 +38,6 @@ void physicsHandler::calculatePosition(vector<Entity*> *theEntityList, GLFWwindo
 		currAcc = theEntityList->at(i)->getAcceleration();
 		currVel = theEntityList->at(i)->getVelocity();
 		
-
 		currAcc = gravity;
 
 		handleKeyInput(window); 
@@ -76,11 +73,6 @@ void physicsHandler::handleKeyInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_C)) {
 		currAcc = 10.0f*(glm::vec3(0.0f, 0.2f, 0.0f) - currPos);
 	}
-    // Freeze
-    if (glfwGetKey(window, GLFW_KEY_C)) {
-        currAcc = glm::vec3(0.0f, 0.0f, 0.0f);
-        currVel = glm::vec3(0.0f, 0.0f, 0.0f);
-    }
 }
 
 void physicsHandler::eulerCalc(Entity* E)
