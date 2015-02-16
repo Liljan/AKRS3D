@@ -37,13 +37,13 @@ int main()
 	// GL-related variables
 
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
-					, 0.0f, 1.0f, 0.0f, 0.0f
-					, 0.0f, 0.0f, 1.0f, 0.0f
-					, 0.0f, 0.0f, 0.0f, 1.0f };
+		, 0.0f, 1.0f, 0.0f, 0.0f
+		, 0.0f, 0.0f, 1.0f, 0.0f
+		, 0.0f, 0.0f, 0.0f, 1.0f };
 	GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f
-					, 0.0f, 2.42f, 0.0f, 0.0f
-					, 0.0f, 0.0f, -1.0f, -1.0f
-					, 0.0f, 0.0f, -0.2f, 0.0f };
+		, 0.0f, 2.42f, 0.0f, 0.0f
+		, 0.0f, 0.0f, -1.0f, -1.0f
+		, 0.0f, 0.0f, -0.2f, 0.0f };
 	GLfloat L[3] = { 0.0f, 10.0f, -3.0f };
 	GLfloat C[3];
 
@@ -92,12 +92,12 @@ int main()
 	Box theBox;
 	theBox.createBox(1.5f, 0.5f, 0.5f);
 
-	Sphere theSphere(glm::vec3(0.0f,5.0f,0.0f), 5.0f, 1.0f);
+	Sphere theSphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 1.0f);
 	theSphere.createSphere(0.5, 32);
 
 	Sphere the2ndSphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 1.0f);
 	the2ndSphere.createSphere(0.5, 32);
-	
+
 	Plane thePlane;
 	thePlane.createPlane(15.0f, 15.0f);
 
@@ -136,20 +136,20 @@ int main()
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
 		}
 		// Remove one ball
-		if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1  && deltaTime > 0.1) {
+		if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1 && deltaTime > 0.1) {
 			objectList.erase(objectList.end() - 1);
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
-			
+
 			timeSinceAction = glfwGetTime();
 		}
 		// Flush your balls
-		if (glfwGetKey(window, GLFW_KEY_DELETE) )
+		if (glfwGetKey(window, GLFW_KEY_DELETE))
 		{
 			objectList.clear();
 			objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
 			system("cls");
 		}
-		
+
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -160,7 +160,7 @@ int main()
 
 		//Send static variables to vertexshader
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
-		
+
 		setupViewport(window, P);
 
 		//TIME
@@ -169,50 +169,52 @@ int main()
 
 		//Transform calculations and rendering
 		MVstack.push();
-		MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad() ));
+		MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad()));
 		MVstack.rotX(theCamera.getTheta());
 		MVstack.rotY(theCamera.getPhi());
 
-			MVstack.push();
-			//MVstack.rotZ(-0.1);
-				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+		MVstack.push();
+		//MVstack.rotZ(-0.1);
+		glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-				C[0] = thePlane.getColorR();
-				C[1] = thePlane.getColorG();
-				C[2] = thePlane.getColorB();
+		C[0] = thePlane.getColorR();
+		C[1] = thePlane.getColorG();
+		C[2] = thePlane.getColorB();
 
-				glUniform3fv(locationL, 1, L);
-				glUniform3fv(locationColor, 1, C);
+		glUniform3fv(locationL, 1, L);
+		glUniform3fv(locationColor, 1, C);
 
-				thePlane.render();
-			MVstack.pop();
+		thePlane.render();
+		MVstack.pop();
 
 		//	oPointer = objectList[i];
 
+		if (!glfwGetKey(window, GLFW_KEY_X))
+		{
 			theHandler.calculatePosition(vPointer, window);
 			theHandler.resolveCollision(vPointer);
+		}
+		for (int i = 0; i < vPointer->size(); i++)
+		{
+			MVstack.push();
+			glfwPollEvents();
+			MVstack.translate(oPointer->getPosition());
+			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+			oPointer = objectList[i];
 
-			for (int i = 0; i < vPointer->size(); i++)
-			{
-				MVstack.push();
-					glfwPollEvents();	
-					MVstack.translate(oPointer->getPosition());
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					oPointer = objectList[i];
+			C[0] = oPointer->getColorR();
+			C[1] = oPointer->getColorG();
+			C[2] = oPointer->getColorB();
 
-					C[0] = oPointer->getColorR();
-					C[1] = oPointer->getColorG();
-					C[2] = oPointer->getColorB();
-
-					glUniform3fv(locationColor, 1, C);
-					oPointer->render();
-				MVstack.pop();
-			}
+			glUniform3fv(locationColor, 1, C);
+			oPointer->render();
+			MVstack.pop();
+		}
 
 		MVstack.pop();
 
 		// Time
-		
+
 
 		glfwSwapBuffers(window);
 
