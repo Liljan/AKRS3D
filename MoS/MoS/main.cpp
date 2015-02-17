@@ -175,8 +175,6 @@ int main()
 
 			transform = glm::make_mat4(MVstack.getCurrentMatrix());
 
-			
-
 			//glm::inverse(glm::mat4(MVstack.getCurrentMatrix()));
 			li = glm::inverse(transform)*li;
 			cam = glm::inverse(transform)*cam;
@@ -201,10 +199,10 @@ int main()
 
 				MVstack.push();
 
-					MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
 					MVstack.translate(oPointer->getPosition());
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
 
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 					C[0] = oPointer->getColorR();
 					C[1] = oPointer->getColorG();
