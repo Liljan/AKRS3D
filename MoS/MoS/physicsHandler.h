@@ -11,13 +11,12 @@ public:
 	physicsHandler();
 	~physicsHandler();
 
-	void calculatePosition(vector<Entity*> *theEntityList, GLFWwindow *window);
+	void calculateMovement(vector<Entity*> *theEntityList, GLFWwindow *window);
 
-	void integrate();
+	void integrate(Entity *E);
 
 	void handleKeyInput(GLFWwindow *window);
 
-	void eulerCalc(Entity *E);
 
 	//void addObject(Entity& theEntity);
 
@@ -34,6 +33,11 @@ private:
 	glm::vec3 currAcc;
 	glm::vec3 currVel;
 	glm::vec3 gravity;
+
+	glm::vec3 currOrient;
+	float currAngVel;
+	float currAngAcc;
+	float currAngPos;
 
 	Plane *tempPlane;
 	Box *tempBox;

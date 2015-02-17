@@ -1,4 +1,5 @@
 #include "MatrixStack.hpp"
+#include <math.h>
 
 /* Constructor: Create one matrix and set it to identity */
 MatrixStack::MatrixStack() {
@@ -71,6 +72,23 @@ void MatrixStack::rotZ(float angle) {
 	rz[12]=0.0f; rz[13]=0.0f; rz[14]=0.0f; rz[15]=1.0f;
     matrixMult(currentMatrix->m, rz, currentMatrix->m);
 };
+
+void MatrixStack::rotAxis(glm::vec3 axis, float a) {
+
+	axis = glm::normalize(axis);
+
+	float u = axis.x;
+	float v = axis.y;
+	float w = axis.z;
+
+	float ra[16];
+	ra[0] = pow(u, 2) + (1 - u)*cos(a);/**/ ra[1] = u*v*(1 - cos(a)) - w*sin(a);/**/ ra[2] = u*w*(1 - cos(a)) + v*sin(a);/**/ ra[3] = 0;
+	ra[4] = u*v*(1.f - cos(a)) + w*sin(a);/**/ra[5] = pow(v, 2) + (1 - pow(v, 2))*cos(a); /**/ra[6] = v*w*(1 - cos(a)) - u*sin(a); /**/ra[7] = 0;
+	ra[8] = u*w*(1.f - cos(a)) - v*sin(a);/**/ ra[9] = v*w*(1.f - cos(a)) + u*sin(a);/**/ ra[10] = pow(w, 2) + (1.f-pow(w,2))*cos(a);/**/ ra[11] = 0;
+	ra[12] = 0.f; ra[13] = 0.f; ra[14] = 0.f; ra[15] = 1.f;
+
+	matrixMult(currentMatrix->m, ra, currentMatrix->m);
+}
 
 // Multiply the topmost (current) matrix with a uniform scaling
 void MatrixStack::scale(float s) {

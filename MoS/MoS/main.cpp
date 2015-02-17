@@ -96,7 +96,8 @@ int main()
 	objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
 	objectList.push_back(new Plane(glm::vec3(4.0f, 3.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
 	objectList.push_back(new Plane(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
-	objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
+	//objectList.push_back(new Box(glm::vec3(0.0f, 3.0f,0.0f),2.0f , glm::vec3(1.0f, 1.0f, 1.0f) ));
+	//objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
 	//objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
 
 	//link variables to shader
@@ -174,6 +175,9 @@ int main()
 
 			transform = glm::make_mat4(MVstack.getCurrentMatrix());
 
+			
+
+			//glm::inverse(glm::mat4(MVstack.getCurrentMatrix()));
 			li = glm::inverse(transform)*li;
 			cam = glm::inverse(transform)*cam;
 
@@ -188,16 +192,18 @@ int main()
 
 			if (!glfwGetKey(window, GLFW_KEY_X))
 			{
-				theHandler.calculatePosition(vPointer, window);
+				theHandler.calculateMovement(vPointer, window);
 				theHandler.resolveCollision(vPointer);
 			}
 			for (int i = 0; i < vPointer->size(); i++)
 			{
 				oPointer = objectList[i];
+
 				MVstack.push();
+
+					MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
 					MVstack.translate(oPointer->getPosition());
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
 
 
 					C[0] = oPointer->getColorR();

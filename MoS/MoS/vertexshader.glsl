@@ -44,6 +44,6 @@ void main ()
 	dLight = max(0, dLight);
 
     // totalLightinPixel = (Ambient + Diffuse + Specular light)*objectColor
-	interpolatedColor = kA * objectColor + kD * dLight * vec3(1.0, 1.0, 1.0) +  kS * pow(sLight, nS) * vec3(1.0, 1.0, 1.0);
+	interpolatedColor = kA *Normal + kD * dLight * vec3(1.0, 1.0, 1.0) +  kS * pow(sLight, nS) * vec3(1.0, 1.0, 1.0);
 
 }

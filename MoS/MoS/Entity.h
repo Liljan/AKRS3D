@@ -35,8 +35,9 @@ class Entity
 		glm::vec3 getAcceleration(){ return acceleration; }
 
 		glm::vec3 getOrientation(){ return orientation; }
-		glm::vec3 getAngularVelocity(){ return angularVelocity; }
-		glm::vec3 getAngularAcceleration(){ return angularAcceleration; }
+		float getAngularPosition(){ return angularPosition; }
+		float getAngularVelocity(){ return angularVelocity; }
+		float getAngularAcceleration(){ return angularAcceleration; }
 
 		glm::vec3 getColor(){ return color; }
 		float getColorR(){ return color.x; }
@@ -53,8 +54,9 @@ class Entity
 		void setAcceleration(glm::vec3 a){ acceleration = a; }
 
 		void setOrientation(glm::vec3 o){ orientation = o; }
-		void setAngularVelocity(glm::vec3 a){ angularVelocity = a; }
-		void setAngularAcceleration(glm::vec3 a){ angularAcceleration = a; }
+		void setAngularPosition(float a){ angularPosition = a; }
+		void setAngularVelocity(float a){ angularVelocity = a; }
+		void setAngularAcceleration(float a){ angularAcceleration = a; }
 
 		// To print
 		friend ostream& operator<<(ostream &os, const Entity &E);
@@ -76,8 +78,9 @@ class Entity
 		glm::vec3 acceleration;
 		
 		glm::vec3 orientation;
-		glm::vec3 angularVelocity;
-		glm::vec3 angularAcceleration;
+		float angularPosition;
+		float angularVelocity;
+		float angularAcceleration;
 		
 		glm::vec3 color;
 

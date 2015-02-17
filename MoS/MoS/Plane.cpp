@@ -14,9 +14,9 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	normal = { 0, 1, 0 };
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
-	orientation = { 0, 0, 0 };
-	angularVelocity = { 0, 0, 0 };
-	angularAcceleration = { 0, 0, 0 };
+	orientation = { 0.f, 1.0f, 0.f };
+	angularVelocity = 2.0f;
+	angularAcceleration = 0.0f;
 
 	color.x = 0.7;
 	color.y = 0.7;
@@ -121,8 +121,8 @@ void Plane::display(ostream& os) const
 	os << endl;
 
 	os << "Orientation: " << orientation.x << ", " << orientation.y << ", " << orientation.z << endl;
-	os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", " << angularVelocity.z << endl;
-	os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", " << angularAcceleration.z << endl;
+	//os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", " << angularVelocity.z << endl;
+	//os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", " << angularAcceleration.z << endl;
 	os << endl;
 
 	os << "" << endl;

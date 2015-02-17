@@ -10,9 +10,9 @@ Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
-	orientation = { 0, 0, 0 };
-	angularVelocity = { 0, 0, 0 };
-	angularAcceleration = { 0, 0, 0 };
+	orientation = { 0, 1.0f, 0 };
+	angularVelocity = 2.0f;
+	angularAcceleration = 0.0f;
 
 	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -26,7 +26,10 @@ Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 	vertexArray[5] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
 	vertexArray[6] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
 	vertexArray[7] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+
+	createBox(1.0f, 1.0f, 1.0f);
 }
+
 
 Box::~Box(void)
 {
@@ -82,9 +85,9 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	nverts = 24;
 	ntris = 12;
 
-	vertexarray = new GLfloat[8 * nverts];
+	vertexarray = new GLfloat[6 * nverts];
 	indexarray = new GLuint[3 * ntris];
-	for (int i = 0; i<8 * nverts; i++) {
+	for (int i = 0; i<6 * nverts; i++) {
 		vertexarray[i] = vertex_array_data[i];
 	}
 	for (int i = 0; i<3 * ntris; i++) {
@@ -161,8 +164,8 @@ void Box::display(ostream& os) const
 	os << endl;
 	
 	os << "Orientation: " << orientation.x << ", " << orientation.y << ", "<< orientation.z << endl;
-	os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", "<< angularVelocity.z << endl;
-	os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", "<< angularAcceleration.z << endl;
+//	os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", "<< angularVelocity.z << endl;
+//	os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", "<< angularAcceleration.z << endl;
 	os << endl;
 
 	os << "" << endl;

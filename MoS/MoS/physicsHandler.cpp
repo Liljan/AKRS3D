@@ -25,13 +25,26 @@ void physicsHandler::calculateTime()
 	currTime = newTime;
 }
 
-void physicsHandler::integrate()
+void physicsHandler::integrate(Entity *E)
 {
-	//glm::vec3 newVel = currVel + deltaTime*currAcc;
-	//glm::vec3 newPos = currPos + deltaTime*newVel;
+	glm::vec3 newVel = currVel + deltaTime*currAcc;
+	glm::vec3 newPos = currPos + deltaTime*newVel;
+	
+
+	float newAngVel = currAngVel + deltaTime*currAngAcc;
+	float newAngPos = currAngPos + deltaTime*newAngVel;
+
+	
+	E->setAcceleration(currAcc);
+	E->setVelocity(newVel);
+	E->setPosition(newPos);
+
+	E->setAngularAcceleration(currAngAcc);
+	E->setAngularVelocity(newAngVel);
+	E->setAngularPosition(newAngPos);
 }
 
-void physicsHandler::calculatePosition(vector<Entity*> *theEntityList, GLFWwindow *window)
+void physicsHandler::calculateMovement(vector<Entity*> *theEntityList, GLFWwindow *window)
 {
 
 	for (int i = 0; i < theEntityList->size(); i++)
@@ -41,15 +54,20 @@ void physicsHandler::calculatePosition(vector<Entity*> *theEntityList, GLFWwindo
 			currPos = theEntityList->at(i)->getPosition();
 			currAcc = theEntityList->at(i)->getAcceleration();
 			currVel = theEntityList->at(i)->getVelocity();
-		
 
 			currAcc = gravity;
 
+			currAngAcc = theEntityList->at(i)->getAngularAcceleration();
+			currAngVel = theEntityList->at(i)->getAngularVelocity();
+			currAngPos = theEntityList->at(i)->getAngularPosition();
+			cout << currAngVel <<endl;
+
 			handleKeyInput(window); 
-			eulerCalc(theEntityList->at(i));
+			integrate(theEntityList->at(i));
 		}
 	}
 }
+
 
 void physicsHandler::handleKeyInput(GLFWwindow *window)
 {
@@ -86,15 +104,7 @@ void physicsHandler::handleKeyInput(GLFWwindow *window)
 	}
 }
 
-void physicsHandler::eulerCalc(Entity* E)
-{
-	glm::vec3 newVel = currVel + deltaTime*currAcc;
-	glm::vec3 newPos = currPos + deltaTime*newVel;
 
-	E->setAcceleration(currAcc);
-	E->setVelocity(newVel);
-	E->setPosition(newPos);
-}
 void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 {
 	glm::vec3 iVel;
@@ -198,9 +208,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 			{
 				tempBox = static_cast<Box*> (theEntityList->at(i));
 				posVector = tempBox->getPosition();
-				Pdim = tempBox->getDim;
-
-
+			//	Pdim = tempBox->getDim();
 			}
 
 
