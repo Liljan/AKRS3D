@@ -17,6 +17,15 @@ Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+	vertexArray[0] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	vertexArray[1] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	vertexArray[2] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	vertexArray[3] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	vertexArray[4] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	vertexArray[5] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	vertexArray[6] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	vertexArray[7] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
 }
 
 Box::~Box(void)
@@ -26,75 +35,6 @@ Box::~Box(void)
 
 void Box::createBox(float xSize, float ySize, float zSize)
 {
-	// Constant data arrays for this simple test.
-	// Note, however, that they need to be copied to dynamic arrays
-	// in the class. These local variables are not persistent.
-	//
-	// The data array contains 8 floats per vertex:
-	// coordinate xyz, normal xyz, texcoords st
-	/*
-	const GLfloat vertex_array_data[] = {
-		//Front (pos z)
-		xSize / 2, ySize / 2.0f, zSize / 2.0f , 0.0f, 0.0f, 1.0f,
-		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-
-		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		
-		//Back (neg z)
-		xSize / 2, ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-
-		xSize / 2, ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		xSize / 2, -ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-
-		//Side 1 (pos x)
-		xSize / 2, ySize / 2, -zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, -ySize / 2, zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 1.0f, 0.0f, 0.0f,
-
-		xSize / 2, ySize / 2, -zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, -ySize / 2, -zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, -ySize / 2, zSize / 2, 1.0f, 0.0f, 0.0f,
-
-		//Side 2 (neg x)
-		-xSize / 2, ySize / 2, zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, ySize / 2, -zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, -ySize / 2, zSize / 2, -1.0f, 0.0f, 0.0f,
-
-		-xSize / 2, ySize / 2, -zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, -ySize / 2, zSize / 2, -1.0f, 0.0f, 0.0f,
-
-		//Top (pos y)
-		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
-		-xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-
-		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
-
-		//Bottom (neg y)
-		xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
-		-xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
-
-		xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
-		xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
-		
-	};
-
-	const GLuint index_array_data[] = {
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
-	};
-	
-	*/
 
 	GLfloat vertex_array_data[] = {
 		-xSize / 2.0f, -xSize / 2.0f, xSize / 2.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  //1 - 0
@@ -163,7 +103,7 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-		8 * nverts * sizeof(GLfloat), vertexarray, GL_STATIC_DRAW);
+		6 * nverts * sizeof(GLfloat), vertexarray, GL_STATIC_DRAW);
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	glEnableVertexAttribArray(1); // Normals
@@ -176,9 +116,9 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	// Stride 8 floats (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3 or 6 floats (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		8 * sizeof(GLfloat), (void*)0); // xyz coordinates
+		6 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
+		6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
 	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
 	//	8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texcoords
 

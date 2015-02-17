@@ -17,13 +17,13 @@ public:
 		ntris = 0;
 	};
 
-	Plane(glm::vec3 _pos, float _mass, glm::vec3 _dim);
+	Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim);
 	~Plane(void);
 
-	void createPlane(float xSize, float ySize);
+	glm::vec3 getNormal() { return normal; }
 
 	void render();
-	glm::vec3 getDim(){ return dim; }
+	glm::vec2 getDim(){ return dim; }
 
 private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
@@ -34,7 +34,8 @@ private:
 	GLfloat *vertexarray; // Vertex array on interleaved format: x y z nx ny nz s t
 	GLuint *indexarray;   // Element index array
 
-	glm::vec3 dim;
+	glm::vec2 dim;
+	glm::vec3 normal;
 
 	void display(ostream& os) const;
 };

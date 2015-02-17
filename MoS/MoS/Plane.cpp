@@ -1,6 +1,6 @@
 #include "Plane.h"
 
-Plane::Plane(glm::vec3 _pos, float _mass, glm::vec3 _dim)
+Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 {
 	position = _pos;
 	mass = _mass;
@@ -8,33 +8,28 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 	centerOfMass = position; // The center of mass is in the objects origin as default
 	inertia = 1; // temporary
 
+	oType = 'P';
+
+
+	normal = { 0, 1, 0 };
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
 	orientation = { 0, 0, 0 };
 	angularVelocity = { 0, 0, 0 };
 	angularAcceleration = { 0, 0, 0 };
 
-}
-
-Plane::~Plane(void)
-{
-	cout << "A box has died." << endl;
-}
-
-void Plane::createPlane(float xSize, float ySize)
-{
 	color.x = 0.7;
 	color.y = 0.7;
 	color.z = 0.7;
 	GLfloat vertex_array_data[] = {
-		xSize/2.0, 0.0, ySize/2.0, 0.0f , 1.0f , 0.0f,
-		-xSize/2.0, 0.0, -ySize/2.0, 0.0f, 1.0f, 0.0f,
-		-xSize/2.0, 0.0, ySize/2.0, 0.0f, 1.0f, 0.0f,
-		xSize/2.0, 0.0, -ySize/2.0, 0.0f, 1.0f, 0.0f
+		_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
+		_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f
 	};
 
 	static const GLuint index_array_data[] = {
-		0, 1, 2, 
+		0, 1, 2,
 		0, 3, 1, //
 	};
 	nverts = 4;
@@ -92,6 +87,12 @@ void Plane::createPlane(float xSize, float ySize)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+}
+
+Plane::~Plane(void)
+{
+	cout << "A box has died." << endl;
 }
 
 void Plane::render()
@@ -101,11 +102,12 @@ void Plane::render()
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
 }
+	
 
 void Plane::display(ostream& os) const
 {
 	os << "Shape: Plane" << endl;
-	os << "Dimensions: " << dim.x << ", " << dim.y << " ," << dim.z << endl;
+	os << "Dimensions: " << dim.x << ", " << dim.y << " ,"  << endl;
 	os << endl;
 
 	os << "Mass: " << mass << endl;

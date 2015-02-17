@@ -28,6 +28,7 @@ class Entity
 		float getInertia(){return inertia;}
 		bool getStatic() { return isStatic; }
 		glm::vec3 getCenterOfMass(){ return centerOfMass; }
+		char getOtype(){ return oType; }
 
 		glm::vec3 getPosition(){ return position; }
 		glm::vec3 getVelocity(){ return velocity; }
@@ -66,6 +67,9 @@ class Entity
 		float mass;
 		float inertia;
 		glm::vec3 centerOfMass;
+		char oType; 
+
+
 
 		glm::vec3 position;
 		glm::vec3 velocity;

@@ -2,6 +2,8 @@
 
 Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 {
+	oType = 'S';
+
 	position = _pos;
 	mass = _mass;
 	radius = _rad;

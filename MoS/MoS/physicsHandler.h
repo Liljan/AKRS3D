@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Sphere.h"
 #include "Box.h"
+#include "Plane.h"
 #include <vector>
 class physicsHandler
 {
@@ -29,11 +30,14 @@ public:
 private:
 	float currTime;
 	float deltaTime;
-
 	glm::vec3 currPos;
 	glm::vec3 currAcc;
 	glm::vec3 currVel;
 	glm::vec3 gravity;
+
+	Plane *tempPlane;
+	Box *tempBox;
+	Sphere *tempSphere;
 
 };
 

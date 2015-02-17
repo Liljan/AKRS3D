@@ -44,12 +44,16 @@ int main()
 					, 0.0f, 2.42f, 0.0f, 0.0f
 					, 0.0f, 0.0f, -1.0f, -1.0f
 					, 0.0f, 0.0f, -0.2f, 0.0f };
-	GLfloat L[3] = { 0.0f, 10.0f, -3.0f };
+	GLfloat L[3] = { 0.0f, 2.0f, 4.0f };
+	GLfloat Ca[3] = { 0.0f, 0.0f, 0.0f };
+	glm::vec4 li(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 cam(0.0f, 0.0f, 0.0f, 1.0f);
 	GLfloat C[3];
 
 	GLint locationMV;
 	GLint locationP;
 	GLint locationL;
+	GLint locationCa;
 	GLint locationColor;
 
 	// start GLEW extension handler
@@ -88,30 +92,18 @@ int main()
 	Camera theCamera(15.0f);
 
 	physicsHandler theHandler;
-
-	Box theBox;
-	theBox.createBox(1.5f, 0.5f, 0.5f);
-
-	Sphere theSphere(glm::vec3(0.0f,5.0f,0.0f), 5.0f, 1.0f);
-	theSphere.createSphere(0.5, 32);
-
-	Sphere the2ndSphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 1.0f);
-	the2ndSphere.createSphere(0.5, 32);
 	
-	Plane thePlane;
-	thePlane.createPlane(15.0f, 15.0f);
-
+	objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
+	objectList.push_back(new Plane(glm::vec3(4.0f, 3.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
+	objectList.push_back(new Plane(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
 	objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
-	objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
-
-	//objectList.push_back(the2ndSphere);
-	//objectList.push_back(thePlane);
-	//objectList.push_back(theBox);
+	//objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
 
 	//link variables to shader
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationL = glGetUniformLocation(phongShader.programID, "lightPosition");
+	locationCa = glGetUniformLocation(phongShader.programID, "cameraPosition");
 	locationColor = glGetUniformLocation(phongShader.programID, "objectColor");
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -120,13 +112,19 @@ int main()
 	vector<Entity*> *vPointer;
 	vPointer = &objectList;
 
-	oPointer = &theSphere;
+	glm::mat4 transform;
+
+	//oPointer = &theSphere;
 	glm::vec3 pos = glm::vec3(0.0f);
 	while (!glfwWindowShouldClose(window)) {
-
+		glfwPollEvents();
 		// generate random coordinates
 		rand1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		rand2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+		li = glm::vec4(0.0, 5.0, 0.0, 1.0);
+		cam = glm::vec4(0.0, 0.0, 0.0, 1.0);
+
 
 		deltaTime = glfwGetTime() - timeSinceAction;
 
@@ -146,7 +144,7 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_DELETE) )
 		{
 			objectList.clear();
-			objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
+			objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
 			system("cls");
 		}
 		
@@ -169,53 +167,51 @@ int main()
 
 		//Transform calculations and rendering
 		MVstack.push();
-		MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad() ));
-		MVstack.rotX(theCamera.getTheta());
-		MVstack.rotY(theCamera.getPhi());
+		MVstack.translate(glm::vec3(0.0f, -3.0f, -10.0f));
+			MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad() ));
+			MVstack.rotX(theCamera.getTheta());
+			MVstack.rotY(theCamera.getPhi());
 
-			MVstack.push();
-			//MVstack.rotZ(-0.1);
-				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+			transform = glm::make_mat4(MVstack.getCurrentMatrix());
 
-				C[0] = thePlane.getColorR();
-				C[1] = thePlane.getColorG();
-				C[2] = thePlane.getColorB();
+			li = glm::inverse(transform)*li;
+			cam = glm::inverse(transform)*cam;
 
-				glUniform3fv(locationL, 1, L);
-				glUniform3fv(locationColor, 1, C);
+			Ca[0] = cam.x;
+			Ca[1] = cam.y;
+			Ca[2] = cam.z;
+			L[0] = li.x;
+			L[1] = li.y;
+			L[2] = li.z;
+			glUniform3fv(locationL, 1, L);
+			glUniform3fv(locationCa, 1, Ca);
 
-				thePlane.render();
-			MVstack.pop();
-
-		//	oPointer = objectList[i];
-
-			theHandler.calculatePosition(vPointer, window);
-			theHandler.resolveCollision(vPointer);
-
+			if (!glfwGetKey(window, GLFW_KEY_X))
+			{
+				theHandler.calculatePosition(vPointer, window);
+				theHandler.resolveCollision(vPointer);
+			}
 			for (int i = 0; i < vPointer->size(); i++)
 			{
+				oPointer = objectList[i];
 				MVstack.push();
-					glfwPollEvents();	
 					MVstack.translate(oPointer->getPosition());
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					oPointer = objectList[i];
+
+
 
 					C[0] = oPointer->getColorR();
 					C[1] = oPointer->getColorG();
 					C[2] = oPointer->getColorB();
-
 					glUniform3fv(locationColor, 1, C);
+
 					oPointer->render();
 				MVstack.pop();
 			}
 
 		MVstack.pop();
 
-		// Time
-		
-
 		glfwSwapBuffers(window);
-
 	}
 
 	glfwTerminate();
