@@ -2,6 +2,8 @@
 #include "Sphere.h"
 #include "Box.h"
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 
 
 
@@ -60,7 +62,6 @@ void physicsHandler::calculateMovement(vector<Entity*> *theEntityList, GLFWwindo
 			currAngAcc = theEntityList->at(i)->getAngularAcceleration();
 			currAngVel = theEntityList->at(i)->getAngularVelocity();
 			currAngPos = theEntityList->at(i)->getAngularPosition();
-			cout << currAngVel <<endl;
 
 			handleKeyInput(window); 
 			integrate(theEntityList->at(i));
@@ -107,6 +108,8 @@ void physicsHandler::handleKeyInput(GLFWwindow *window)
 
 void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 {
+	srand(time(NULL));
+
 	glm::vec3 iVel;
 	glm::vec3 iPos;
 	glm::vec3 jPos;
@@ -180,11 +183,11 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 				
 					diffVel = nreflectedNewVel_1.x - nreflectedNewVel_2.x;
 
-					nreflectedNewVel_1 = glm::vec4((nreflectedNewVel_1.x-diffVel), nreflectedNewVel_1.y, nreflectedNewVel_1.z, 1.0f);
+					nreflectedNewVel_1 = glm::vec4((nreflectedNewVel_1.x - diffVel), nreflectedNewVel_1.y + 0.00001 * (rand() % 10 + 1), nreflectedNewVel_1.z + 0.00001 * (rand() % 10 + 1), 1.0f);
 					reflectedNewVel_1 = coSystem*nreflectedNewVel_1;
 					theEntityList->at(i)->setVelocity(glm::vec3(reflectedNewVel_1));
-
-					nreflectedNewVel_2 = glm::vec4((nreflectedNewVel_2.x+diffVel), nreflectedNewVel_2.y, nreflectedNewVel_2.z, 1.0f);
+					
+					nreflectedNewVel_2 = glm::vec4((nreflectedNewVel_2.x + diffVel), nreflectedNewVel_2.y + 0.00001 * (rand() % 10 + 1), nreflectedNewVel_2.z + 0.00001 * (rand() % 10 + 1), 1.0f);
 					reflectedNewVel_2 = coSystem*nreflectedNewVel_2;
 					theEntityList->at(j)->setVelocity(glm::vec3(reflectedNewVel_2));
 
