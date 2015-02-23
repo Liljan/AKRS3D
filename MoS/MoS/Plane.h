@@ -21,6 +21,7 @@ public:
 	~Plane(void);
 
 	glm::vec3 getNormal() { return normal; }
+	void setNormal(glm::vec3 n){ normal = n; }
 
 	void render();
 	glm::vec2 getDim(){ return dim; }
