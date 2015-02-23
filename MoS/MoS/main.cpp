@@ -14,6 +14,11 @@
 
 using namespace std;
 
+void changeScene(int scene, vector<Entity*> *objects);
+
+// The worst
+const float BAD_PI = 3.141592f;
+
 void setupViewport(GLFWwindow *window, GLfloat *P)
 {
 	int width, height;
@@ -37,13 +42,13 @@ int main()
 	// GL-related variables
 
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
-					, 0.0f, 1.0f, 0.0f, 0.0f
-					, 0.0f, 0.0f, 1.0f, 0.0f
-					, 0.0f, 0.0f, 0.0f, 1.0f };
+		, 0.0f, 1.0f, 0.0f, 0.0f
+		, 0.0f, 0.0f, 1.0f, 0.0f
+		, 0.0f, 0.0f, 0.0f, 1.0f };
 	GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f
-					, 0.0f, 2.42f, 0.0f, 0.0f
-					, 0.0f, 0.0f, -1.0f, -1.0f
-					, 0.0f, 0.0f, -0.2f, 0.0f };
+		, 0.0f, 2.42f, 0.0f, 0.0f
+		, 0.0f, 0.0f, -1.0f, -1.0f
+		, 0.0f, 0.0f, -0.2f, 0.0f };
 	GLfloat L[3] = { 0.0f, 2.0f, 4.0f };
 	GLfloat Ca[3] = { 0.0f, 0.0f, 0.0f };
 	glm::vec4 li(0.0f, 0.0f, 0.0f, 1.0f);
@@ -92,10 +97,7 @@ int main()
 	Camera theCamera(15.0f);
 
 	physicsHandler theHandler;
-	
-	objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
-	objectList.push_back(new Plane(glm::vec3(4.0f, 3.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
-	objectList.push_back(new Plane(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
+
 	//objectList.push_back(new Box(glm::vec3(0.0f, 3.0f,0.0f),2.0f , glm::vec3(1.0f, 1.0f, 1.0f) ));
 	//objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
 	//objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
@@ -113,6 +115,8 @@ int main()
 	vector<Entity*> *vPointer;
 	vPointer = &objectList;
 
+	changeScene(1, vPointer);
+
 	glm::mat4 transform;
 
 	//oPointer = &theSphere;
@@ -126,29 +130,31 @@ int main()
 		li = glm::vec4(0.0, 5.0, 0.0, 1.0);
 		cam = glm::vec4(0.0, 0.0, 0.0, 1.0);
 
-
 		deltaTime = glfwGetTime() - timeSinceAction;
 
 		// Add balls to scene
-		if (glfwGetKey(window, GLFW_KEY_O)) {
-			objectList.push_back(new Sphere(glm::vec3(0.0f*rand1, 8.0f, 0.0f*rand2), 5.0f, 0.5f));
+		if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
+			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
+
+			timeSinceAction = glfwGetTime();
 		}
 		// Remove one ball
-		if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1  && deltaTime > 0.1) {
+		if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1 && deltaTime > 0.1) {
 			objectList.erase(objectList.end() - 1);
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
-			
+
 			timeSinceAction = glfwGetTime();
 		}
 		// Flush your balls
-		if (glfwGetKey(window, GLFW_KEY_DELETE) )
+		if (glfwGetKey(window, GLFW_KEY_DELETE))
 		{
 			objectList.clear();
 			objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
 			system("cls");
 		}
-		
+
+
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -159,7 +165,7 @@ int main()
 
 		//Send static variables to vertexshader
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
-		
+
 		setupViewport(window, P);
 
 		//TIME
@@ -169,51 +175,66 @@ int main()
 		//Transform calculations and rendering
 		MVstack.push();
 		MVstack.translate(glm::vec3(0.0f, -3.0f, -10.0f));
-			MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad() ));
-			MVstack.rotX(theCamera.getTheta());
-			MVstack.rotY(theCamera.getPhi());
+		MVstack.translate(glm::vec3(0.0f, 0.0f, -theCamera.getRad()));
+		MVstack.rotX(theCamera.getTheta());
+		MVstack.rotY(theCamera.getPhi());
 
-			transform = glm::make_mat4(MVstack.getCurrentMatrix());
+		transform = glm::make_mat4(MVstack.getCurrentMatrix());
 
-			//glm::inverse(glm::mat4(MVstack.getCurrentMatrix()));
-			li = glm::inverse(transform)*li;
-			cam = glm::inverse(transform)*cam;
+		//glm::inverse(glm::mat4(MVstack.getCurrentMatrix()));
+		li = glm::inverse(transform)*li;
+		cam = glm::inverse(transform)*cam;
 
-			Ca[0] = cam.x;
-			Ca[1] = cam.y;
-			Ca[2] = cam.z;
-			L[0] = li.x;
-			L[1] = li.y;
-			L[2] = li.z;
-			glUniform3fv(locationL, 1, L);
-			glUniform3fv(locationCa, 1, Ca);
+		Ca[0] = cam.x;
+		Ca[1] = cam.y;
+		Ca[2] = cam.z;
+		L[0] = li.x;
+		L[1] = li.y;
+		L[2] = li.z;
+		glUniform3fv(locationL, 1, L);
+		glUniform3fv(locationCa, 1, Ca);
 
-			if (!glfwGetKey(window, GLFW_KEY_X))
-			{
-				theHandler.calculateMovement(vPointer, window);
-				theHandler.resolveCollision(vPointer);
-			}
-			for (int i = 0; i < vPointer->size(); i++)
-			{
-				oPointer = objectList[i];
+		if (!glfwGetKey(window, GLFW_KEY_X))
+		{
+			theHandler.calculateMovement(vPointer, window);
+			theHandler.resolveCollision(vPointer);
+		}
+		for (int i = 0; i < vPointer->size(); i++)
+		{
+			oPointer = objectList[i];
 
-				MVstack.push();
+			MVstack.push();
 
-					MVstack.translate(oPointer->getPosition());
-					MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
+			MVstack.translate(oPointer->getPosition());
+			MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
 
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-					C[0] = oPointer->getColorR();
-					C[1] = oPointer->getColorG();
-					C[2] = oPointer->getColorB();
-					glUniform3fv(locationColor, 1, C);
+			C[0] = oPointer->getColorR();
+			C[1] = oPointer->getColorG();
+			C[2] = oPointer->getColorB();
+			glUniform3fv(locationColor, 1, C);
 
-					oPointer->render();
-				MVstack.pop();
-			}
+			oPointer->render();
+			MVstack.pop();
+		}
 
 		MVstack.pop();
+
+		// Experimental - create scene
+		if (glfwGetKey(window, GLFW_KEY_1))
+		{
+			changeScene(1, vPointer);
+		}
+		if (glfwGetKey(window, GLFW_KEY_2))
+		{
+			changeScene(2, vPointer);
+		}
+		if (glfwGetKey(window, GLFW_KEY_3))
+		{
+			changeScene(3, vPointer);
+		}
+
 
 		glfwSwapBuffers(window);
 	}
@@ -221,4 +242,49 @@ int main()
 	glfwTerminate();
 
 	return 0;
+}
+
+void changeScene(int scene, vector<Entity*> *list)
+{
+	list->clear();
+	switch (scene)
+	{
+	case 1:
+		list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
+		list->push_back(new Plane(glm::vec3(4.0f, 3.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
+		list->push_back(new Plane(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
+		break;
+	case 2:
+		list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(1.0f, 1.0f)));
+		list->push_back(new Plane(glm::vec3(0.0f, 10.0f, 0.0f), 5.0f, glm::vec2(1.0f, 1.0f)));
+		break;
+	case 3:
+		list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
+		
+		Plane* pLeft = new Plane(glm::vec3(-25.0f, 25.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f));
+		pLeft->setOrientation(glm::vec3(0.0f, 0.0f, 1.0f));
+		pLeft->setNormal(glm::vec3(1.0f, 0.0f, 0.0f));
+		pLeft->setAngularPosition(BAD_PI / 2);
+		list->push_back(pLeft);
+		//
+		Plane* pRight = new Plane(glm::vec3(25.0f, 25.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f));
+		pRight->setOrientation(glm::vec3(0.0f, 0.0f, -1.0f));
+		pRight->setNormal(glm::vec3(-1.0f, 0.0f, 0.0f));
+		pRight->setAngularPosition(BAD_PI / 2);
+		list->push_back(pRight);
+		//
+		Plane* pBack = new Plane(glm::vec3(0.0f, 25.0f, 25.0f), 5.0f, glm::vec2(50.0f, 50.0f));
+		pBack->setOrientation(glm::vec3(1.0f, 0.0f, 0.0f));
+		pBack->setNormal(glm::vec3(0.0f, 0.0f, 1.0f));
+		pBack->setAngularPosition(BAD_PI / 2);
+		list->push_back(pBack);
+		//
+		Plane* pFront= new Plane(glm::vec3(0.0f, 25.0f, -25.0f), 5.0f, glm::vec2(50.0f, 50.0f));
+		pFront->setOrientation(glm::vec3(-1.0f, 0.0f, 0.0f));
+		pFront->setNormal(glm::vec3(0.0f, 0.0f, -1.0f));
+		pFront->setAngularPosition(BAD_PI / 2);
+		list->push_back(pFront);
+
+		break;
+	}
 }
