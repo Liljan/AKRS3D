@@ -39,6 +39,10 @@ private:
 	float currAngAcc;
 	float currAngPos;
 
+	float elasticity = 1.0f;
+	float m1, m2;
+	float v3, v4;
+
 	Plane *tempPlane;
 	Box *tempBox;
 	Sphere *tempSphere;
