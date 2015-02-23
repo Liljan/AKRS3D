@@ -2,6 +2,8 @@
 #include "Sphere.h"
 #include "Box.h"
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 
 
 
@@ -60,7 +62,6 @@ void physicsHandler::calculateMovement(vector<Entity*> *theEntityList, GLFWwindo
 			currAngAcc = theEntityList->at(i)->getAngularAcceleration();
 			currAngVel = theEntityList->at(i)->getAngularVelocity();
 			currAngPos = theEntityList->at(i)->getAngularPosition();
-			cout << currAngVel <<endl;
 
 			handleKeyInput(window); 
 			integrate(theEntityList->at(i));
@@ -107,6 +108,8 @@ void physicsHandler::handleKeyInput(GLFWwindow *window)
 
 void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 {
+	srand(time(NULL));
+
 	glm::vec3 iVel;
 	glm::vec3 iPos;
 	glm::vec3 jPos;
