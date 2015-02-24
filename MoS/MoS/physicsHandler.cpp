@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
+#include "glm\gtx\rotate_vector.hpp"
 
 
 
@@ -32,18 +33,20 @@ void physicsHandler::integrate(Entity *E)
 	glm::vec3 newVel = currVel + deltaTime*currAcc;
 	glm::vec3 newPos = currPos + deltaTime*newVel;
 	
-
 	float newAngVel = currAngVel + deltaTime*currAngAcc;
 	float newAngPos = currAngPos + deltaTime*newAngVel;
 
-	
 	E->setAcceleration(currAcc);
 	E->setVelocity(newVel);
 	E->setPosition(newPos);
 
+	E->setOrientation(glm::normalize(glm::rotate(E->getOrientation(), newAngPos - currAngPos, E->getRotAxis())));
+	
+	//cout << E->getOrientation().x << endl;
 	E->setAngularAcceleration(currAngAcc);
 	E->setAngularVelocity(newAngVel);
 	E->setAngularPosition(newAngPos);
+
 }
 
 void physicsHandler::calculateMovement(vector<Entity*> *theEntityList, GLFWwindow *window)
@@ -125,11 +128,14 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 	glm::vec3 p2Normal;
 	glm::mat4 coSystem;
 
-	glm::vec4 reflectedNewVel_1;
-	glm::vec4 nreflectedNewVel_1;
+	glm::vec4 vec_1;
+	glm::vec4 nVec_1;
 
-	glm::vec4 reflectedNewVel_2;
-	glm::vec4 nreflectedNewVel_2;
+	glm::vec4 vec_2;
+	glm::vec4 nVec_2;
+
+	glm::vec3 vec3_1;
+	glm::vec3 vec3_2;
 
 	glm::vec4 nBasePos;
 
@@ -154,19 +160,15 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 			//SPHERE TO SPHERE
 			if ( theEntityList->at(i)->getOtype() == 'S' && theEntityList->at(j)->getOtype() == 'S')
 			{
-				tempSphere = static_cast<Sphere*> (theEntityList->at(i));
-				rad1 = tempSphere->getRadius();
-				tempSphere = static_cast<Sphere*> (theEntityList->at(j));
-				rad2 = tempSphere->getRadius();
+				tempSphere1 = static_cast<Sphere*> (theEntityList->at(i));
+				rad1 = tempSphere1->getRadius();
+				tempSphere2 = static_cast<Sphere*> (theEntityList->at(j));
+				rad2 = tempSphere2->getRadius();
 				if (vLength < rad1 + rad2)
 				{
 
-
-
 					m1 = theEntityList->at(i)->getMass();
 					m2 = theEntityList->at(j)->getMass();
-
-					tempSphere = static_cast<Sphere*> (theEntityList->at(i));
 
 					move = (rad1 + rad2 - vLength);
 
@@ -176,30 +178,29 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));
 					p2Normal = glm::cross(normal, p1Normal);
 					coSystem = glm::mat4(glm::vec4(glm::normalize(normal), 0.0f), glm::vec4(glm::normalize(p1Normal), 0.0f), glm::vec4(glm::normalize(p2Normal), 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
 				
-					//reflectedNewVel_1 = glm::vec4(glm::reflect(iVel, normal), 1.0f);
-					reflectedNewVel_1 = glm::vec4(iVel, 1.0f);
-					nreflectedNewVel_1 = glm::transpose(coSystem)*reflectedNewVel_1;
+					//vec_1 = glm::vec4(glm::reflect(iVel, normal), 1.0f);
+					vec_1 = glm::vec4(iVel, 1.0f);
+					nVec_1 = glm::transpose(coSystem)*vec_1;
 				
-					//reflectedNewVel_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
-					reflectedNewVel_2 = glm::vec4(jVel, 1.0f);
-					nreflectedNewVel_2 = glm::transpose(coSystem)*reflectedNewVel_2;
+					//vec_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
+					vec_2 = glm::vec4(jVel, 1.0f);
+					nVec_2 = glm::transpose(coSystem)*vec_2;
 				
-				//	diffVel = nreflectedNewVel_1.x - nreflectedNewVel_2.x;
+				//	diffVel = nVec_1.x - nVec_2.x;
 
-					v3 = (m1*nreflectedNewVel_1.x + m2*nreflectedNewVel_2.x + m2*elasticity*(nreflectedNewVel_2.x - nreflectedNewVel_1.x)) / (m1 + m2);
-					v4 = (m1*nreflectedNewVel_1.x + m2*nreflectedNewVel_2.x - m1*elasticity*(nreflectedNewVel_2.x - nreflectedNewVel_1.x)) / (m1 + m2);
+					v3 = (m1*nVec_1.x + m2*nVec_2.x + m2*elasticity*(nVec_2.x - nVec_1.x)) / (m1 + m2);
+					v4 = (m1*nVec_1.x + m2*nVec_2.x - m1*elasticity*(nVec_2.x - nVec_1.x)) / (m1 + m2);
 
-					//nreflectedNewVel_1 = glm::vec4((nreflectedNewVel_1.x-diffVel), nreflectedNewVel_1.y, nreflectedNewVel_1.z, 1.0f);
-					nreflectedNewVel_1 = glm::vec4(v3, nreflectedNewVel_1.y, nreflectedNewVel_1.z, 1.0f);
-					reflectedNewVel_1 = coSystem*nreflectedNewVel_1;
-					theEntityList->at(i)->setVelocity(glm::vec3(reflectedNewVel_1));
+					//nVec_1 = glm::vec4((nVec_1.x-diffVel), nVec_1.y, nVec_1.z, 1.0f);
+					nVec_1 = glm::vec4(v3, nVec_1.y, nVec_1.z, 1.0f);
+					vec_1 = coSystem*nVec_1;
+					theEntityList->at(i)->setVelocity(glm::vec3(vec_1));
 					
-					//nreflectedNewVel_2 = glm::vec4((nreflectedNewVel_2.x+diffVel), nreflectedNewVel_2.y, nreflectedNewVel_2.z, 1.0f);
-					nreflectedNewVel_2 = glm::vec4(v4, nreflectedNewVel_2.y, nreflectedNewVel_2.z, 1.0f);
-					reflectedNewVel_2 = coSystem*nreflectedNewVel_2;
-					theEntityList->at(j)->setVelocity(glm::vec3(reflectedNewVel_2));
+					//nVec_2 = glm::vec4((nVec_2.x+diffVel), nVec_2.y, nVec_2.z, 1.0f);
+					nVec_2 = glm::vec4(v4, nVec_2.y, nVec_2.z, 1.0f);
+					vec_2 = coSystem*nVec_2;
+					theEntityList->at(j)->setVelocity(glm::vec3(vec_2));
 
 					//FIRST BALL
 					nBasePos = glm::transpose(coSystem)*glm::vec4(iPos, 1.0f);
@@ -212,6 +213,29 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					nBasePos = glm::vec4(nBasePos.x - move, nBasePos.y, nBasePos.z, 1.0f);
 					nBasePos = coSystem*nBasePos;
 					theEntityList->at(j)->setPosition(glm::vec3(nBasePos));
+					
+					//if orientation = (0, 0,0)
+					if (true)
+					{
+						vec3_1 = glm::vec3(0.0f, nVec_1.y, nVec_1.z);
+						vec3_2 = glm::vec3(0.0f, nVec_2.y, nVec_2.z);
+
+						vec3_1 = vec3_1 + vec3_2 + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere1->getRotAxis())) + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere2->getRotAxis()));
+
+						vec3_2 = glm::cross(vec3_1, posVector);
+
+
+						theEntityList->at(i)->setAngularVelocity(glm::length(vec3_1));
+						theEntityList->at(j)->setAngularVelocity(glm::length(vec3_1));
+
+						theEntityList->at(i)->setRotAxis(vec3_2);
+						theEntityList->at(j)->setRotAxis(-vec3_2);
+					}
+					else
+					{
+					}
+										
+
 				}
 				//theEntityList->at(i)->setPosition(glm::vec3(currPos.x, 0.50001f, currPos.z));
 			}
@@ -229,7 +253,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 			if (theEntityList->at(i)->getOtype() == 'P' && theEntityList->at(j)->getOtype() == 'S')
 			{
 				tempPlane = static_cast<Plane*> (theEntityList->at(i));
-				tempSphere = static_cast<Sphere*> (theEntityList->at(j));
+				tempSphere1 = static_cast<Sphere*> (theEntityList->at(j));
 				
 				normal = tempPlane->getNormal();
 				p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));
@@ -247,7 +271,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 							-posVector.x, -posVector.y, -posVector.z, 1.0f) *
 							glm::vec4(jPos, 1.0f);
 
-				if (nBasePos.x > -tempSphere->getRadius() && nBasePos.x < tempSphere->getRadius() && nBasePos.y < Pdim.y / 2.0f && nBasePos.y > -Pdim.y / 2.0f && nBasePos.z < Pdim.x / 2.0f && nBasePos.z > -Pdim.x / 2.0f)
+				if (nBasePos.x > -tempSphere1->getRadius() && nBasePos.x < tempSphere1->getRadius() && nBasePos.y < Pdim.y / 2.0f && nBasePos.y > -Pdim.y / 2.0f && nBasePos.z < Pdim.x / 2.0f && nBasePos.z > -Pdim.x / 2.0f)
 				{
 
 				//	glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
@@ -256,15 +280,15 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 				//		0.0f, 0.0f, 0.0f, 1.0f);
 
 					
-					reflectedNewVel_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
-					nreflectedNewVel_2 = glm::inverse(coSystem)*reflectedNewVel_2;
-					nreflectedNewVel_2 = glm::vec4(nreflectedNewVel_2.x*0.5f, nreflectedNewVel_2.y, nreflectedNewVel_2.z, 1.0f);
-					reflectedNewVel_2 = coSystem*nreflectedNewVel_2;
-					theEntityList->at(j)->setVelocity(glm::vec3(reflectedNewVel_2));
+					vec_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
+					nVec_2 = glm::inverse(coSystem)*vec_2;
+					nVec_2 = glm::vec4(nVec_2.x*0.5f, nVec_2.y, nVec_2.z, 1.0f);
+					vec_2 = coSystem*nVec_2;
+					theEntityList->at(j)->setVelocity(glm::vec3(vec_2));
 
 					//nBasePos = glm::inverse(coSystem)*glm::vec4(jPos, 1.0f);
 
-					move = (nBasePos.x / abs(nBasePos.x)) * (tempSphere->getRadius() - abs(nBasePos.x));
+					move = (nBasePos.x / abs(nBasePos.x)) * (tempSphere1->getRadius() - abs(nBasePos.x));
 					nBasePos = glm::vec4(nBasePos.x + move, nBasePos.y, nBasePos.z, 1.0f);
 					//nBasePos = glm::translate(glm::mat4(1), glm::vec3(0.0f, tempSphere->getPosition().y, 0.0f))*coSystem*nBasePos;
 					nBasePos =
@@ -276,11 +300,11 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 						nBasePos;
 					theEntityList->at(j)->setPosition(glm::vec3(nBasePos));
 				}
-				//reflectedNewVel_1 = glm::vec4(glm::reflect(currVel, normal), 1.0f);
-				//nreflectedNewVel_1 = glm::inverse(coSystem)*reflectedNewVel_1;
-				//nreflectedNewVel_1 = glm::vec4(nreflectedNewVel_1.x*0.5f, nreflectedNewVel_1.y, nreflectedNewVel_1.z, 1.0f);
+				//vec_1 = glm::vec4(glm::reflect(currVel, normal), 1.0f);
+				//nVec_1 = glm::inverse(coSystem)*vec_1;
+				//nVec_1 = glm::vec4(nVec_1.x*0.5f, nVec_1.y, nVec_1.z, 1.0f);
 
-				//reflectedNewVel_1 = coSystem*nreflectedNewVel_1;
+				//vec_1 = coSystem*nVec_1;
 
 
 				//theEntityList->at(j)->setPosition(glm::vec3(currPos.x, 0.50001f, currPos.z));
@@ -298,14 +322,14 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 			p2Normal = glm::cross(normal, p1Normal);
 			coSystem = glm::mat4(glm::vec4(normal, 0.0f), glm::vec4(p1Normal, 0.0f), glm::vec4(p2Normal, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-			reflectedNewVel_1 = glm::vec4(glm::reflect(currVel, normal), 1.0f);
-			nreflectedNewVel_1 = glm::inverse(coSystem)*reflectedNewVel_1;
+			vec_1 = glm::vec4(glm::reflect(currVel, normal), 1.0f);
+			nVec_1 = glm::inverse(coSystem)*vec_1;
 
-			nreflectedNewVel_1 = glm::vec4(nreflectedNewVel_1.x*0.5f, nreflectedNewVel_1.y, nreflectedNewVel_1.z, 1.0f);
+			nVec_1 = glm::vec4(nVec_1.x*0.5f, nVec_1.y, nVec_1.z, 1.0f);
 
-			reflectedNewVel_1 = coSystem*nreflectedNewVel_1;
+			vec_1 = coSystem*nVec_1;
 
-			theEntityList->at(i)->setVelocity(glm::vec3(reflectedNewVel_1));
+			theEntityList->at(i)->setVelocity(glm::vec3(vec_1));
 			theEntityList->at(i)->setPosition(glm::vec3(currPos.x, 0.50001f, currPos.z));
 		}
 		*/

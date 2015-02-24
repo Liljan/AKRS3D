@@ -14,7 +14,7 @@ public:
 	void calculateMovement(vector<Entity*> *theEntityList, GLFWwindow *window);
 
 	void integrate(Entity *E);
-
+	//kjhjkhkjhkjh
 	void handleKeyInput(GLFWwindow *window);
 
 
@@ -33,6 +33,7 @@ private:
 	glm::vec3 currAcc;
 	glm::vec3 currVel;
 	glm::vec3 gravity;
+	glm::vec3 currRotVel;
 
 	glm::vec3 currOrient;
 	float currAngVel;
@@ -45,7 +46,8 @@ private:
 
 	Plane *tempPlane;
 	Box *tempBox;
-	Sphere *tempSphere;
+	Sphere *tempSphere1;
+	Sphere *tempSphere2;
 
 };
 

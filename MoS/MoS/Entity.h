@@ -35,6 +35,7 @@ class Entity
 		glm::vec3 getAcceleration(){ return acceleration; }
 
 		glm::vec3 getOrientation(){ return orientation; }
+		glm::vec3 getRotAxis(){ return rotAxis; }
 		float getAngularPosition(){ return angularPosition; }
 		float getAngularVelocity(){ return angularVelocity; }
 		float getAngularAcceleration(){ return angularAcceleration; }
@@ -54,6 +55,7 @@ class Entity
 		void setAcceleration(glm::vec3 a){ acceleration = a; }
 
 		void setOrientation(glm::vec3 o){ orientation = o; }
+		void setRotAxis(glm::vec3 _rotAxis){ rotAxis = _rotAxis; }
 		void setAngularPosition(float a){ angularPosition = a; }
 		void setAngularVelocity(float a){ angularVelocity = a; }
 		void setAngularAcceleration(float a){ angularAcceleration = a; }
@@ -78,6 +80,7 @@ class Entity
 		glm::vec3 acceleration;
 		
 		glm::vec3 orientation;
+		glm::vec3 rotAxis;
 		float angularPosition;
 		float angularVelocity;
 		float angularAcceleration;

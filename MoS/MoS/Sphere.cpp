@@ -15,8 +15,9 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
 	orientation = { 0.0f, 1.0f, 0.0f };
+	rotAxis = { 0.0f, 1.0f, 0.0f };
 	angularPosition = 0.0f;
-	angularVelocity = 2.0f;
+	angularVelocity = 0.0f;
 	angularAcceleration = 0.0f;
 
 	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);

@@ -77,15 +77,34 @@ void MatrixStack::rotAxis(glm::vec3 axis, float a) {
 
 	axis = glm::normalize(axis);
 
-	float u = axis.x;
-	float v = axis.y;
-	float w = axis.z;
+//	float u = axis.x;
+//	float v = axis.y;
+//	float w = axis.z;
 
 	float ra[16];
-	ra[0] = pow(u, 2) + (1 - u)*cos(a);/**/ ra[1] = u*v*(1 - cos(a)) - w*sin(a);/**/ ra[2] = u*w*(1 - cos(a)) + v*sin(a);/**/ ra[3] = 0;
-	ra[4] = u*v*(1.f - cos(a)) + w*sin(a);/**/ra[5] = pow(v, 2) + (1 - pow(v, 2))*cos(a); /**/ra[6] = v*w*(1 - cos(a)) - u*sin(a); /**/ra[7] = 0;
-	ra[8] = u*w*(1.f - cos(a)) - v*sin(a);/**/ ra[9] = v*w*(1.f - cos(a)) + u*sin(a);/**/ ra[10] = pow(w, 2) + (1.f-pow(w,2))*cos(a);/**/ ra[11] = 0;
-	ra[12] = 0.f; ra[13] = 0.f; ra[14] = 0.f; ra[15] = 1.f;
+//	ra[0] = pow(u, 2) + (1 - u)*cos(a);/**/ ra[1] = u*v*(1 - cos(a)) - w*sin(a);/**/ ra[2] = u*w*(1 - cos(a)) + v*sin(a);/**/ ra[3] = 0;
+//	ra[4] = u*v*(1.f - cos(a)) + w*sin(a);/**/ra[5] = pow(v, 2) + (1 - pow(v, 2))*cos(a); /**/ra[6] = v*w*(1 - cos(a)) - u*sin(a); /**/ra[7] = 0;
+//	ra[8] = u*w*(1.f - cos(a)) - v*sin(a);/**/ ra[9] = v*w*(1.f - cos(a)) + u*sin(a);/**/ ra[10] = pow(w, 2) + (1.f-pow(w,2))*cos(a);/**/ ra[11] = 0;
+//	ra[12] = 0.f; ra[13] = 0.f; ra[14] = 0.f; ra[15] = 1.f;
+
+	glm::mat4 bg = glm::rotate(glm::mat4(1) , a, axis);
+
+	ra[0] = bg[0][0];
+	ra[1] = bg[0][1];
+	ra[2] = bg[0][2];
+	ra[3] = bg[0][3];
+	ra[4] = bg[1][0];
+	ra[5] = bg[1][1];
+	ra[6] = bg[1][2];
+	ra[7] = bg[1][3];
+	ra[8] = bg[2][0];
+	ra[9] = bg[2][1];
+	ra[10] = bg[2][2];
+	ra[11] = bg[2][3];
+	ra[12] = bg[3][0];
+	ra[13] = bg[3][1];
+	ra[14] = bg[3][2];
+	ra[15] = bg[3][3];
 
 	matrixMult(currentMatrix->m, ra, currentMatrix->m);
 }

@@ -206,6 +206,7 @@ int main()
 			MVstack.push();
 
 			MVstack.translate(oPointer->getPosition());
+		//	MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
 			MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
 
 			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
