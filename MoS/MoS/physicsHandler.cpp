@@ -136,6 +136,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 
 	glm::vec3 vec3_1;
 	glm::vec3 vec3_2;
+	glm::vec3 vec3_3;
 
 	glm::vec4 nBasePos;
 
@@ -214,26 +215,34 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					nBasePos = coSystem*nBasePos;
 					theEntityList->at(j)->setPosition(glm::vec3(nBasePos));
 					
-					//if orientation = (0, 0,0)
-					if (true)
-					{
-						vec3_1 = glm::vec3(0.0f, nVec_1.y, nVec_1.z);
-						vec3_2 = glm::vec3(0.0f, nVec_2.y, nVec_2.z);
 
-						vec3_1 = vec3_1 + vec3_2 + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere1->getRotAxis())) + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere2->getRotAxis()));
+					// ROTATION
 
-						vec3_2 = glm::cross(vec3_1, posVector);
+					// Two coefficients of the initial velocity vectors
+					vec3_1 = glm::vec3(0.0f, nVec_1.y, nVec_1.z) + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere1->getRotAxis()));
+					vec3_2 = glm::vec3(0.0f, nVec_2.y, nVec_2.z) + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere2->getRotAxis()));
+
+					// project vec3_1 and vec3_2 on rotAxis
+
+					glm::vec3 pVec3_1 = (glm::dot(vec3_1, theEntityList->at(i)->getRotAxis()) / glm::dot(theEntityList->at(i)->getRotAxis(), theEntityList->at(i)->getRotAxis())) * theEntityList->at(i)->getRotAxis();
+					glm::vec3 pVec3_2 = (glm::dot(vec3_2, theEntityList->at(i)->getRotAxis()) / glm::dot(theEntityList->at(i)->getRotAxis(), theEntityList->at(i)->getRotAxis())) * theEntityList->at(i)->getRotAxis();
 
 
-						theEntityList->at(i)->setAngularVelocity(glm::length(vec3_1));
-						theEntityList->at(j)->setAngularVelocity(glm::length(vec3_1));
 
-						theEntityList->at(i)->setRotAxis(vec3_2);
-						theEntityList->at(j)->setRotAxis(-vec3_2);
-					}
-					else
-					{
-					}
+					vec3_3 = vec3_1;
+
+					vec3_1 = vec3_2;
+					vec3_2 = vec3_3;
+
+
+					vec3_1 = glm::cross(vec3_1, posVector);
+					vec3_2 = glm::cross(vec3_2, posVector);
+
+					//	theEntityList->at(i)->setAngularVelocity(glm::length(vec3_1));
+					//	theEntityList->at(j)->setAngularVelocity(glm::length(vec3_2));
+
+					//	theEntityList->at(i)->setRotAxis(vec3_1);
+					//	theEntityList->at(j)->setRotAxis(vec3_2);
 										
 
 				}

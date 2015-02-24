@@ -90,20 +90,20 @@ void MatrixStack::rotAxis(glm::vec3 axis, float a) {
 	glm::mat4 bg = glm::rotate(glm::mat4(1) , a, axis);
 
 	ra[0] = bg[0][0];
-	ra[1] = bg[0][1];
-	ra[2] = bg[0][2];
-	ra[3] = bg[0][3];
-	ra[4] = bg[1][0];
+	ra[1] = bg[1][0];
+	ra[2] = bg[2][0];
+	ra[3] = bg[3][0];
+	ra[4] = bg[0][1];
 	ra[5] = bg[1][1];
-	ra[6] = bg[1][2];
-	ra[7] = bg[1][3];
-	ra[8] = bg[2][0];
-	ra[9] = bg[2][1];
+	ra[6] = bg[2][1];
+	ra[7] = bg[3][1];
+	ra[8] = bg[0][2];
+	ra[9] = bg[1][2];
 	ra[10] = bg[2][2];
-	ra[11] = bg[2][3];
-	ra[12] = bg[3][0];
-	ra[13] = bg[3][1];
-	ra[14] = bg[3][2];
+	ra[11] = bg[3][2];
+	ra[12] = bg[0][3];
+	ra[13] = bg[1][3];
+	ra[14] = bg[2][3];
 	ra[15] = bg[3][3];
 
 	matrixMult(currentMatrix->m, ra, currentMatrix->m);
