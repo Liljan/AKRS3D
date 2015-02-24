@@ -141,6 +141,15 @@ int main()
 
 			timeSinceAction = glfwGetTime();
 		}
+
+		if (glfwGetKey(window, GLFW_KEY_I) && deltaTime > 0.1) {
+			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 500.0f, 2.5f));
+			std::cout << "Number of objects: " << objectList.size() << std::endl;
+
+			timeSinceAction = glfwGetTime();
+		}
+
+
 		// Remove one ball
 		if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1 && deltaTime > 0.1) {
 			objectList.erase(objectList.end() - 1);
