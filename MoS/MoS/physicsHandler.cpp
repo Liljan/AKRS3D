@@ -101,11 +101,6 @@ void physicsHandler::handleKeyInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_C)){
 		currAcc = 10.0f*(glm::vec3(0.0f, 0.2f, 0.0f) - currPos);
 	}
-	//annu mer
-	if (glfwGetKey(window, GLFW_KEY_X)){
-		currAcc = 0.0f*(glm::vec3(0.0f, 0.2f, 0.0f) - currPos);
-		currVel = glm::vec3(0);
-	}
 }
 
 
