@@ -204,6 +204,7 @@ FakesAssemblies/
 .AppleDouble
 .LSOverride
 .xcodeproj
+.xcodeproj/
 
 # Icon must end with two \r
 Icon
