@@ -47,7 +47,7 @@ Sphere::~Sphere(void)
 
 
 void Sphere::createSphere(float radius, int segments) {
-	float M_PI = 3.14159265358979323846;
+	float GOOD_M_PI = 3.14159265358979323846;
 	int i, j, base, i0;
 	float x, y, z, R;
 	double theta, phi;
@@ -88,11 +88,11 @@ void Sphere::createSphere(float radius, int segments) {
 	// vsegs-1 latitude rings of hsegs+1 vertices each
 	// (duplicates at texture seam s=0 / s=1)
 	for (j = 0; j<vsegs - 1; j++) { // vsegs-1 latitude rings of vertices
-		theta = (double)(j + 1) / vsegs*M_PI;
+		theta = (double)(j + 1) / vsegs*GOOD_M_PI;
 		z = cos(theta);
 		R = sin(theta);
 		for (i = 0; i <= hsegs; i++) { // hsegs+1 vertices in each ring (duplicate for texcoords)
-			phi = (double)i / hsegs*2.0*M_PI;
+			phi = (double)i / hsegs*2.0*GOOD_M_PI;
 			x = R*cos(phi);
 			y = R*sin(phi);
 			base = (1 + j*(hsegs + 1) + i)*stride;

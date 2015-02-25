@@ -22,10 +22,10 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	color.y = 0.7;
 	color.z = 0.7;
 	GLfloat vertex_array_data[] = {
-		_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f
+		_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f
 	};
 
 	static const GLuint index_array_data[] = {
@@ -98,7 +98,7 @@ Plane::~Plane(void)
 void Plane::render()
 {
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
+	//ooglDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
 }

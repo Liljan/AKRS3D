@@ -38,7 +38,7 @@ void main ()
 	}
 	else {
 		sLight = dot(normalize(reflection), normalize(cameraDirection));
-	sLight = max(0, sLight);
+        sLight = max(0, sLight);
 	}
 	
 	dLight = max(0, dLight);

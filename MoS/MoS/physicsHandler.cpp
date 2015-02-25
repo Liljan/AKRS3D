@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
-#include "glm\gtx\rotate_vector.hpp"
+#include "glm/gtx/rotate_vector.hpp"
 
 
 
@@ -46,6 +46,7 @@ void physicsHandler::integrate(Entity *E)
 	E->setAngularAcceleration(currAngAcc);
 	E->setAngularVelocity(newAngVel);
 	E->setAngularPosition(newAngPos);
+
 
 }
 
