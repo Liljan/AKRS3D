@@ -45,7 +45,8 @@ private:
 	float v3, v4;
 
 	Plane *tempPlane;
-	Box *tempBox;
+	Box *tempBox1;
+	Box *tempBox2;
 	Sphere *tempSphere1;
 	Sphere *tempSphere2;
 

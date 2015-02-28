@@ -42,6 +42,7 @@ void physicsHandler::integrate(Entity *E)
 
 	E->setOrientation(glm::normalize(glm::rotate(E->getOrientation(), newAngPos - currAngPos, E->getRotAxis())));
 	
+
 	//cout << E->getOrientation().x << endl;
 	E->setAngularAcceleration(currAngAcc);
 	E->setAngularVelocity(newAngVel);
@@ -122,11 +123,14 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 	float vLength;
 	float diffVel;
 	float move;
+	float j;
+	float vRel;
 
 	glm::vec3 normal;
 	glm::vec3 p1Normal;
 	glm::vec3 p2Normal;
-	glm::mat4 coSystem;
+	glm::mat4 rotCoSystem;
+	glm::mat4 posCoSystem;
 
 	glm::vec4 vec_1;
 	glm::vec4 nVec_1;
@@ -168,6 +172,8 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 				if (vLength < rad1 + rad2)
 				{
 
+					posVector = glm::normalize(posVector);
+
 					m1 = theEntityList->at(i)->getMass();
 					m2 = theEntityList->at(j)->getMass();
 
@@ -178,15 +184,15 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					normal = posVector;
 					p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));
 					p2Normal = glm::cross(normal, p1Normal);
-					coSystem = glm::mat4(glm::vec4(glm::normalize(normal), 0.0f), glm::vec4(glm::normalize(p1Normal), 0.0f), glm::vec4(glm::normalize(p2Normal), 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+					rotCoSystem = glm::mat4(glm::vec4(glm::normalize(normal), 0.0f), glm::vec4(glm::normalize(p1Normal), 0.0f), glm::vec4(glm::normalize(p2Normal), 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 				
 					//vec_1 = glm::vec4(glm::reflect(iVel, normal), 1.0f);
 					vec_1 = glm::vec4(iVel, 1.0f);
-					nVec_1 = glm::transpose(coSystem)*vec_1;
+					nVec_1 = glm::transpose(rotCoSystem)*vec_1;
 				
 					//vec_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
 					vec_2 = glm::vec4(jVel, 1.0f);
-					nVec_2 = glm::transpose(coSystem)*vec_2;
+					nVec_2 = glm::transpose(rotCoSystem)*vec_2;
 				
 				//	diffVel = nVec_1.x - nVec_2.x;
 
@@ -195,54 +201,55 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 
 					//nVec_1 = glm::vec4((nVec_1.x-diffVel), nVec_1.y, nVec_1.z, 1.0f);
 					nVec_1 = glm::vec4(v3, nVec_1.y, nVec_1.z, 1.0f);
-					vec_1 = coSystem*nVec_1;
+					vec_1 = rotCoSystem*nVec_1;
 					theEntityList->at(i)->setVelocity(glm::vec3(vec_1));
 					
 					//nVec_2 = glm::vec4((nVec_2.x+diffVel), nVec_2.y, nVec_2.z, 1.0f);
 					nVec_2 = glm::vec4(v4, nVec_2.y, nVec_2.z, 1.0f);
-					vec_2 = coSystem*nVec_2;
+					vec_2 = rotCoSystem*nVec_2;
 					theEntityList->at(j)->setVelocity(glm::vec3(vec_2));
 
 					//FIRST BALL
-					nBasePos = glm::transpose(coSystem)*glm::vec4(iPos, 1.0f);
+					nBasePos = glm::transpose(rotCoSystem)*glm::vec4(iPos, 1.0f);
 					nBasePos = glm::vec4(nBasePos.x + move, nBasePos.y, nBasePos.z, 1.0f);
-					nBasePos = coSystem*nBasePos;
+					nBasePos = rotCoSystem*nBasePos;
 					theEntityList->at(i)->setPosition(glm::vec3(nBasePos));
 
 					//SECOND BALL
-					nBasePos = glm::transpose(coSystem)*glm::vec4(jPos, 1.0f);
+					nBasePos = glm::transpose(rotCoSystem)*glm::vec4(jPos, 1.0f);
 					nBasePos = glm::vec4(nBasePos.x - move, nBasePos.y, nBasePos.z, 1.0f);
-					nBasePos = coSystem*nBasePos;
+					nBasePos = rotCoSystem*nBasePos;
 					theEntityList->at(j)->setPosition(glm::vec3(nBasePos));
 					
 
 					// ROTATION
 
-					// Two coefficients of the initial velocity vectors
+					//vec3_1 = iVel - jVel;
+
+					//j = -(1+elasticity) * vec3_1 *
+
 					vec3_1 = glm::vec3(0.0f, nVec_1.y, nVec_1.z) + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere1->getRotAxis()));
-					vec3_2 = glm::vec3(0.0f, nVec_2.y, nVec_2.z) + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere2->getRotAxis()));
+					vec3_2 = glm::vec3(0.0f, nVec_2.y, nVec_2.z) + tempSphere2->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere2->getRotAxis()));
 
-					// project vec3_1 and vec3_2 on rotAxis
+					//vec3_1 = iVel + tempSphere1->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere1->getRotAxis()));
+					//vec3_2 = jVel + tempSphere2->getAngularVelocity() * glm::normalize(glm::cross(posVector, tempSphere2->getRotAxis()));
 
-					glm::vec3 pVec3_1 = (glm::dot(vec3_1, theEntityList->at(i)->getRotAxis()) / glm::dot(theEntityList->at(i)->getRotAxis(), theEntityList->at(i)->getRotAxis())) * theEntityList->at(i)->getRotAxis();
-					glm::vec3 pVec3_2 = (glm::dot(vec3_2, theEntityList->at(i)->getRotAxis()) / glm::dot(theEntityList->at(i)->getRotAxis(), theEntityList->at(i)->getRotAxis())) * theEntityList->at(i)->getRotAxis();
+					//vRel = glm::dot(posVector, (vec3_1 - vec3_2);
 
-
-
+					//j = -(1 + elasticity) * vRel / ( 1/m1 + 1/m2 + posVector )
 					vec3_3 = vec3_1;
 
 					vec3_1 = vec3_2;
 					vec3_2 = vec3_3;
 
+					theEntityList->at(i)->setAngularVelocity(glm::length(vec3_1));
+					theEntityList->at(j)->setAngularVelocity(glm::length(vec3_2));
 
 					vec3_1 = glm::cross(vec3_1, posVector);
 					vec3_2 = glm::cross(vec3_2, posVector);
 
-					//	theEntityList->at(i)->setAngularVelocity(glm::length(vec3_1));
-					//	theEntityList->at(j)->setAngularVelocity(glm::length(vec3_2));
-
-					//	theEntityList->at(i)->setRotAxis(vec3_1);
-					//	theEntityList->at(j)->setRotAxis(vec3_2);
+					theEntityList->at(i)->setRotAxis(vec3_1);
+					theEntityList->at(j)->setRotAxis(vec3_2);
 										
 
 				}
@@ -252,8 +259,57 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 			//BOX TO BOX
 			if (theEntityList->at(i)->getOtype() == 'B' && theEntityList->at(j)->getOtype() == 'B')
 			{
-				tempBox = static_cast<Box*> (theEntityList->at(i));
-				posVector = tempBox->getPosition();
+				tempBox1 = static_cast<Box*> (theEntityList->at(i));
+				tempBox2 = static_cast<Box*> (theEntityList->at(j));
+				vec3_1 = tempBox1->getDim();
+
+				iPos = tempBox1->getPosition();
+				jPos = tempBox2->getPosition();
+
+				if ( vec3_1.x*2.0f > glm::length(iPos-jPos))
+				{
+
+					vec3_1 = tempBox1->getOrientation();
+					vec3_2 = tempBox2->getOrientation();
+
+					normal = glm::normalize(vec3_1);
+					p1Normal = glm::normalize(glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y))));
+					p2Normal = glm::normalize(glm::cross(normal, p1Normal));
+					
+					rotCoSystem = glm::rotate(glm::mat4(1), tempBox2->getAngularPosition() , tempBox2->getOrientation());
+					posCoSystem = glm::translate(glm::mat4(1), jPos);
+
+					std::vector<glm::vec4> vertexList;
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(-1.0f, 1.0f, 1.0f, 1.0f));
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f));
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(1.0f, -1.0f, 1.0f, 1.0f));
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(1.0f, 1.0f, -1.0f, 1.0f));
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(1.0f, -1.0f, -1.0f, 1.0f));
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f));
+					vertexList.push_back(rotCoSystem * posCoSystem * glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f));
+
+					rotCoSystem = glm::mat4(glm::vec4(normal, 0.0f), glm::vec4(p1Normal, 0.0f), glm::vec4(p2Normal, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+					posCoSystem = glm::translate(glm::mat4(1), -iPos);
+
+					vertexList[0] = rotCoSystem * posCoSystem * vertexList[0];
+					vertexList[1] = rotCoSystem * posCoSystem * vertexList[1];
+					vertexList[2] = rotCoSystem * posCoSystem * vertexList[2];
+					vertexList[3] = rotCoSystem * posCoSystem * vertexList[3];
+					vertexList[4] = rotCoSystem * posCoSystem * vertexList[4];
+					vertexList[5] = rotCoSystem * posCoSystem * vertexList[5];
+					vertexList[6] = rotCoSystem * posCoSystem * vertexList[6];
+					vertexList[7] = rotCoSystem * posCoSystem * vertexList[7];
+
+					for (int i = 0; i < 7; i++)
+					{
+						if (vertexList[i].x < 1.0f || vertexList[i].x > -1.0f || vertexList[i].y < 1.0f || vertexList[i].y > -1.0f || vertexList[i].z < 1.0f || vertexList[i].z > -1.0f)
+						{
+							cout << "HEEEEEEEYOOOOO";
+						}
+
+					}
+				}
 			//	Pdim = tempBox->getDim();
 			}
 
@@ -267,13 +323,13 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 				normal = tempPlane->getNormal();
 				p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));
 				p2Normal = glm::cross(normal, p1Normal);
-				coSystem = glm::mat4(glm::vec4(normal, 0.0f), glm::vec4(p1Normal, 0.0f), glm::vec4(p2Normal, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+				rotCoSystem = glm::mat4(glm::vec4(normal, 0.0f), glm::vec4(p1Normal, 0.0f), glm::vec4(p2Normal, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 				//nBasePos = glm::inverse(coSystem) * glm::translate(glm::mat4(1), glm::vec3(0.0f, -tempSphere->getPosition().y, 0.0f)) * glm::vec4(jPos, 1.0f);
 				Pdim = tempPlane->getDim();
 				posVector = tempPlane->getPosition();
 
-				nBasePos = glm::transpose(coSystem) * 
+				nBasePos = glm::transpose(rotCoSystem) *
 					glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
 							0.0f, 1.0f, 0.0f, 0.0f,
 							0.0f, 0.0f, 1.0f, 0.0f,
@@ -290,9 +346,9 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 
 					
 					vec_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
-					nVec_2 = glm::inverse(coSystem)*vec_2;
+					nVec_2 = glm::inverse(rotCoSystem)*vec_2;
 					nVec_2 = glm::vec4(nVec_2.x*0.5f, nVec_2.y, nVec_2.z, 1.0f);
-					vec_2 = coSystem*nVec_2;
+					vec_2 = rotCoSystem*nVec_2;
 					theEntityList->at(j)->setVelocity(glm::vec3(vec_2));
 
 					//nBasePos = glm::inverse(coSystem)*glm::vec4(jPos, 1.0f);
@@ -305,7 +361,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 						0.0f, 1.0f, 0.0f, 0.0f,
 						0.0f, 0.0f, 1.0f, 0.0f,
 						posVector.x, posVector.y, posVector.z, 1.0f) *
-						(coSystem) *
+						(rotCoSystem)*
 						nBasePos;
 					theEntityList->at(j)->setPosition(glm::vec3(nBasePos));
 				}

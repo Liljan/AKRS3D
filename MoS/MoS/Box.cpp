@@ -7,10 +7,12 @@ Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 	dim = _dim;
 	centerOfMass = position; // The center of mass is in the objects origin as default
 	inertia = 1; // temporary
+	oType = 'B';
 
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
 	orientation = { 0, 1.0f, 0 };
+	rotAxis = { 0, 1.0f, 0 };
 	angularVelocity = 2.0f;
 	angularAcceleration = 0.0f;
 

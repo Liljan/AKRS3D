@@ -98,9 +98,6 @@ int main()
 
 	physicsHandler theHandler;
 
-	//objectList.push_back(new Box(glm::vec3(0.0f, 3.0f,0.0f),2.0f , glm::vec3(1.0f, 1.0f, 1.0f) ));
-	//objectList.push_back(new Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, 0.5f));
-	//objectList.push_back(new Sphere(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, 0.5f));
 
 	//link variables to shader
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
@@ -134,9 +131,10 @@ int main()
 
 		// Add balls to scene
 		if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
-			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
+			//objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
+			objectList.push_back(new Box(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f, glm::vec3(1.0f, 1.0f,1.0f)));
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
-
+	
 			timeSinceAction = glfwGetTime();
 		}
 		// Remove one ball
@@ -161,6 +159,7 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
 		//Send static variables to vertexshader
