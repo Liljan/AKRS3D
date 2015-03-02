@@ -14,10 +14,18 @@ using namespace std;
 
 void changeScene(int scene, vector<Entity*> *objects);
 void addSceneBox(vector<Entity*> *list, glm::vec3 pos, float s);
+void mouse_button_callback(GLFWwindow*, int button, int action, int mods);
+Entity* getSelectedObject(std::vector<Entity*> objectList, int xMouse, int yMouse);
 
 // The worst
 const float BAD_PI = 3.141592f;
 int currentScene;
+
+// Mouse
+const int MOUSE_BUTTON_RELEASED = 0;
+const int MOUSE_BUTTON_LEFT = 1;
+const int MOUSE_BUTTON_RIGHT = 2;
+int mouseState = MOUSE_BUTTON_RELEASED;
 
 void setupViewport(GLFWwindow *window, GLfloat *P)
 {
@@ -30,6 +38,7 @@ void setupViewport(GLFWwindow *window, GLfloat *P)
 	glViewport(0, 0, width, height);
 }
 
+
 int main()
 {
 	// time related variables
@@ -38,6 +47,12 @@ int main()
 	double deltaTime;
 
 	float rand1, rand2;
+    
+    // Mouse related variables
+    double xMouse, yMouse;
+    Entity* selectedObject = nullptr;
+    int width, height;
+
 
 	// GL-related variables
 
@@ -119,14 +134,10 @@ int main()
 	vector<Entity*> *vPointer;
 	vPointer = &objectList;
 
-	changeScene(1, vPointer);
+	changeScene(3, vPointer);
 
 	glm::mat4 transform;
 
-	//objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
-
-	//oPointer = &theSphere;
-	glm::vec3 pos = glm::vec3(0.0f);
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		// generate random coordinates
@@ -141,14 +152,13 @@ int main()
 		// Add balls to scene
 		if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
 			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
-			//objectList.push_back(new Box(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f, glm::vec3(1.0f, 1.0f,1.0f)));
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
 	
 			timeSinceAction = glfwGetTime();
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_I) && deltaTime > 0.1) {
-			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 500.0f, 2.5f));
+			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 65.45f, 2.5f));
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
 
 			timeSinceAction = glfwGetTime();
@@ -168,7 +178,34 @@ int main()
 			changeScene(currentScene, vPointer);
 			system("cls");
 		}
-
+        
+        
+        // Mouse interaction
+        glfwSetMouseButtonCallback(window, mouse_button_callback);
+        if (mouseState == MOUSE_BUTTON_LEFT) {
+            glfwGetCursorPos(window, &xMouse, &yMouse);
+            glfwGetWindowSize(window, &width, &height);
+            // normalise for -1 to 1
+            xMouse = (2.0*xMouse / width) - 1;
+            yMouse = 1 - (2.0*yMouse / height);
+            if (xMouse > 1) xMouse = 1;
+            if (xMouse < 0) xMouse = 0;
+            if (yMouse > 1) yMouse = 1;
+            if (yMouse < 0) yMouse = 0;
+            
+            cout << "Cursor Pointer: " << xMouse << " : " << yMouse << "\n";
+            if (!selectedObject) {
+                selectedObject = getSelectedObject(objectList, xMouse, yMouse);
+            } else {
+                //selectedObject->setPosition(glm::vec3(xMouse, yMouse, Camera->getPosition.z));
+                //selectedObject->setVelocity();
+            }
+        // flush stuff
+        } else if (mouseState == MOUSE_BUTTON_RELEASED) {
+            selectedObject = nullptr;
+        } else if (mouseState == MOUSE_BUTTON_RIGHT) {
+            // push objects
+        }
 
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -266,6 +303,67 @@ int main()
 
 	return 0;
 }
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        mouseState = MOUSE_BUTTON_LEFT;
+    }
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        mouseState = MOUSE_BUTTON_RELEASED;
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        mouseState = MOUSE_BUTTON_RIGHT;
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        mouseState = MOUSE_BUTTON_RELEASED;
+    }
+    
+}
+
+Entity* getSelectedObject(std::vector<Entity*> objectList, int xMouse, int yMouse) {
+    float vLength;
+    glm::vec3 oPos;
+    glm::vec2 posVector;
+    Sphere *tempSphere;
+    Box *tempBox;
+    std::vector<Entity*> selectList;
+    Entity* selectedObject = nullptr;
+    
+    for (int i = 0; i < objectList.size(); i++)
+    {
+        oPos = objectList.at(i)->getPosition();
+        glm::vec3 vCursor = glm::vec3(xMouse, yMouse, 2.42f);
+        
+        vLength = glm::length(posVector);
+        
+        // Sphere
+        if(objectList.at(i)->getOtype() == 'S') {
+            tempSphere = static_cast<Sphere*> (objectList.at(i));
+            if (vLength <tempSphere->getRadius()) {
+                selectList.push_back(tempSphere);
+            }
+        }
+        // Box
+        if (objectList.at(i)->getOtype() == 'B') {
+            // TODO
+            tempBox = static_cast<Box*> (objectList.at(i));
+        }
+        // Plane
+        if (objectList.at(i)->getOtype() == 'P') {
+            continue;
+        }
+        // Get closest selected object
+        for (int i = 0; i < selectList.size(); i++) {
+            selectedObject = selectList.at(i);
+            if (selectList.at(i)->getPosition().z < selectedObject->getPosition().z) {
+                selectList.at(i) = selectedObject;
+            }
+        }
+    }
+    return selectedObject;
+}
+
 
 void changeScene(int scene, vector<Entity*> *list)
 {

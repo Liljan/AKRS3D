@@ -142,8 +142,6 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 
 	glm::vec2 Pdim;
 
-	float rad1 = 0.5f;
-	float rad2 = 0.5f;
 	for (int i = 0; i < theEntityList->size() - 1; i++)
 	{
 		iPos = theEntityList->at(i)->getPosition();
@@ -162,10 +160,8 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 			if ( theEntityList->at(i)->getOtype() == 'S' && theEntityList->at(j)->getOtype() == 'S')
 			{
 				tempSphere1 = static_cast<Sphere*> (theEntityList->at(i));
-				rad1 = tempSphere1->getRadius();
 				tempSphere2 = static_cast<Sphere*> (theEntityList->at(j));
-				rad2 = tempSphere2->getRadius();
-				if (vLength < rad1 + rad2)
+				if (vLength < tempSphere1->getRadius() + tempSphere2->getRadius())
 				{
 
 					posVector = glm::normalize(posVector);
@@ -173,7 +169,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					m1 = theEntityList->at(i)->getMass();
 					m2 = theEntityList->at(j)->getMass();
 
-					move = (rad1 + rad2 - vLength);
+					move = (tempSphere1->getRadius() + tempSphere2->getRadius() - vLength);
 
 					move /= 2.0f;
 
