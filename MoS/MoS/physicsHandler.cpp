@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
-#include "glm\gtx\rotate_vector.hpp"
+#include "glm/gtx/rotate_vector.hpp"
 
 
 
@@ -47,6 +47,7 @@ void physicsHandler::integrate(Entity *E)
 	E->setAngularAcceleration(currAngAcc);
 	E->setAngularVelocity(newAngVel);
 	E->setAngularPosition(newAngPos);
+
 
 }
 
@@ -101,11 +102,6 @@ void physicsHandler::handleKeyInput(GLFWwindow *window)
 	// Det ballar ur
 	if (glfwGetKey(window, GLFW_KEY_C)){
 		currAcc = 10.0f*(glm::vec3(0.0f, 0.2f, 0.0f) - currPos);
-	}
-	//annu mer
-	if (glfwGetKey(window, GLFW_KEY_X)){
-		currAcc = 0.0f*(glm::vec3(0.0f, 0.2f, 0.0f) - currPos);
-		currVel = glm::vec3(0);
 	}
 }
 
@@ -206,6 +202,7 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					
 					//nVec_2 = glm::vec4((nVec_2.x+diffVel), nVec_2.y, nVec_2.z, 1.0f);
 					nVec_2 = glm::vec4(v4, nVec_2.y, nVec_2.z, 1.0f);
+
 					vec_2 = rotCoSystem*nVec_2;
 					theEntityList->at(j)->setVelocity(glm::vec3(vec_2));
 
@@ -242,14 +239,14 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					vec3_1 = vec3_2;
 					vec3_2 = vec3_3;
 
-					theEntityList->at(i)->setAngularVelocity(glm::length(vec3_1));
-					theEntityList->at(j)->setAngularVelocity(glm::length(vec3_2));
+					//theEntityList->at(i)->setAngularVelocity(glm::length(vec3_1));
+					//theEntityList->at(j)->setAngularVelocity(glm::length(vec3_2));
 
 					vec3_1 = glm::cross(vec3_1, posVector);
 					vec3_2 = glm::cross(vec3_2, posVector);
 
-					theEntityList->at(i)->setRotAxis(vec3_1);
-					theEntityList->at(j)->setRotAxis(vec3_2);
+					//theEntityList->at(i)->setRotAxis(vec3_1);
+					//theEntityList->at(j)->setRotAxis(vec3_2);
 										
 
 				}
@@ -354,6 +351,66 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					//nBasePos = glm::inverse(coSystem)*glm::vec4(jPos, 1.0f);
 
 					move = (nBasePos.x / abs(nBasePos.x)) * (tempSphere1->getRadius() - abs(nBasePos.x));
+					nBasePos = glm::vec4(nBasePos.x + move, nBasePos.y, nBasePos.z, 1.0f);
+					//nBasePos = glm::translate(glm::mat4(1), glm::vec3(0.0f, tempSphere->getPosition().y, 0.0f))*coSystem*nBasePos;
+					nBasePos =
+						glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
+						0.0f, 1.0f, 0.0f, 0.0f,
+						0.0f, 0.0f, 1.0f, 0.0f,
+						posVector.x, posVector.y, posVector.z, 1.0f) *
+						(rotCoSystem)*
+						nBasePos;
+					theEntityList->at(j)->setPosition(glm::vec3(nBasePos));
+				}
+				//vec_1 = glm::vec4(glm::reflect(currVel, normal), 1.0f);
+				//nVec_1 = glm::inverse(coSystem)*vec_1;
+				//nVec_1 = glm::vec4(nVec_1.x*0.5f, nVec_1.y, nVec_1.z, 1.0f);
+
+				//vec_1 = coSystem*nVec_1;
+
+
+				//theEntityList->at(j)->setPosition(glm::vec3(currPos.x, 0.50001f, currPos.z));
+			}
+
+			if (theEntityList->at(i)->getOtype() == 'P' && theEntityList->at(j)->getOtype() == 'B')
+			{
+				tempPlane = static_cast<Plane*> (theEntityList->at(i));
+				tempBox1 = static_cast<Box*> (theEntityList->at(j));
+
+				normal = tempPlane->getNormal();
+				p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));
+				p2Normal = glm::cross(normal, p1Normal);
+				rotCoSystem = glm::mat4(glm::vec4(normal, 0.0f), glm::vec4(p1Normal, 0.0f), glm::vec4(p2Normal, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+				//nBasePos = glm::inverse(coSystem) * glm::translate(glm::mat4(1), glm::vec3(0.0f, -tempSphere->getPosition().y, 0.0f)) * glm::vec4(jPos, 1.0f);
+				Pdim = tempPlane->getDim();
+				posVector = tempPlane->getPosition();
+
+				nBasePos = glm::transpose(rotCoSystem) *
+					glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
+					0.0f, 1.0f, 0.0f, 0.0f,
+					0.0f, 0.0f, 1.0f, 0.0f,
+					-posVector.x, -posVector.y, -posVector.z, 1.0f) *
+					glm::vec4(jPos, 1.0f);
+
+				if (nBasePos.x > -tempBox1->getDim().x && nBasePos.x < tempBox1->getDim().x && nBasePos.y < Pdim.y / 2.0f && nBasePos.y > -Pdim.y / 2.0f && nBasePos.z < Pdim.x / 2.0f && nBasePos.z > -Pdim.x / 2.0f)
+				{
+
+					//	glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
+					//		0.0f, 1.0f, 0.0f, -8.0f,
+					//		0.0f, 0.0f, 1.0f, 0.0f,
+					//		0.0f, 0.0f, 0.0f, 1.0f);
+
+
+					vec_2 = glm::vec4(glm::reflect(jVel, normal), 1.0f);
+					nVec_2 = glm::inverse(rotCoSystem)*vec_2;
+					nVec_2 = glm::vec4(nVec_2.x*0.5f, nVec_2.y, nVec_2.z, 1.0f);
+					vec_2 = rotCoSystem*nVec_2;
+					theEntityList->at(j)->setVelocity(glm::vec3(vec_2));
+
+					//nBasePos = glm::inverse(coSystem)*glm::vec4(jPos, 1.0f);
+
+					move = (nBasePos.x / abs(nBasePos.x)) * (tempBox1->getDim().x - abs(nBasePos.x));
 					nBasePos = glm::vec4(nBasePos.x + move, nBasePos.y, nBasePos.z, 1.0f);
 					//nBasePos = glm::translate(glm::mat4(1), glm::vec3(0.0f, tempSphere->getPosition().y, 0.0f))*coSystem*nBasePos;
 					nBasePos =

@@ -11,10 +11,10 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	oType = 'P';
 
 
-	normal = { 0, 1, 0 };
+	normal = { 0.0f, 1.0f, 0.0f };
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
-	orientation = { 0.f, 1.0f, 0.f };
+	orientation = { 0.0f, 1.0f, 0.0f };
 	angularVelocity = 2.0f;
 	angularAcceleration = 0.0f;
 
@@ -22,10 +22,10 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	color.y = 0.7;
 	color.z = 0.7;
 	GLfloat vertex_array_data[] = {
-		_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f
+		_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f
 	};
 
 	static const GLuint index_array_data[] = {
@@ -98,6 +98,7 @@ Plane::~Plane(void)
 void Plane::render()
 {
 	glBindVertexArray(vao);
+	//ooglDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);

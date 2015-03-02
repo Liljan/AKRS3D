@@ -10,14 +10,14 @@
 
 #include <time.h>
 
-#include <SDKDDKVer.h>
-
 using namespace std;
 
 void changeScene(int scene, vector<Entity*> *objects);
+void addSceneBox(vector<Entity*> *list, glm::vec3 pos, float s);
 
 // The worst
 const float BAD_PI = 3.141592f;
+int currentScene;
 
 void setupViewport(GLFWwindow *window, GLfloat *P)
 {
@@ -67,6 +67,13 @@ int main()
 		return 1;
 	}
 
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+    
 	//create GLFW window and select context
 	GLFWwindow* window = glfwCreateWindow(640, 480, "Do not try and bend the spoon. That's impossible. Instead... only try to realize the truth.", NULL, NULL);
 	if (!window) {
@@ -116,6 +123,8 @@ int main()
 
 	glm::mat4 transform;
 
+	//objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
+
 	//oPointer = &theSphere;
 	glm::vec3 pos = glm::vec3(0.0f);
 	while (!glfwWindowShouldClose(window)) {
@@ -131,12 +140,21 @@ int main()
 
 		// Add balls to scene
 		if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
-			//objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
-			objectList.push_back(new Box(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f, glm::vec3(1.0f, 1.0f,1.0f)));
+			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
+			//objectList.push_back(new Box(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f, glm::vec3(1.0f, 1.0f,1.0f)));
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
 	
 			timeSinceAction = glfwGetTime();
 		}
+
+		if (glfwGetKey(window, GLFW_KEY_I) && deltaTime > 0.1) {
+			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 500.0f, 2.5f));
+			std::cout << "Number of objects: " << objectList.size() << std::endl;
+
+			timeSinceAction = glfwGetTime();
+		}
+
+
 		// Remove one ball
 		if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1 && deltaTime > 0.1) {
 			objectList.erase(objectList.end() - 1);
@@ -147,8 +165,7 @@ int main()
 		// Flush your balls
 		if (glfwGetKey(window, GLFW_KEY_DELETE))
 		{
-			objectList.clear();
-			objectList.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
+			changeScene(currentScene, vPointer);
 			system("cls");
 		}
 
@@ -159,7 +176,7 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
 		//Send static variables to vertexshader
@@ -234,8 +251,14 @@ int main()
 		{
 			changeScene(3, vPointer);
 		}
-
-
+		if (glfwGetKey(window, GLFW_KEY_3))
+		{
+			changeScene(3, vPointer);
+		}
+		if (glfwGetKey(window, GLFW_KEY_4))
+		{
+			changeScene(4, vPointer);
+		}
 		glfwSwapBuffers(window);
 	}
 
@@ -246,45 +269,59 @@ int main()
 
 void changeScene(int scene, vector<Entity*> *list)
 {
+	currentScene = scene;
 	list->clear();
+
 	switch (scene)
 	{
 	case 1:
 		list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
-		list->push_back(new Plane(glm::vec3(4.0f, 3.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
-		list->push_back(new Plane(glm::vec3(0.0f, 8.0f, 0.0f), 5.0f, glm::vec2(5.0f, 5.0f)));
 		break;
 	case 2:
 		list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(1.0f, 1.0f)));
 		list->push_back(new Plane(glm::vec3(0.0f, 10.0f, 0.0f), 5.0f, glm::vec2(1.0f, 1.0f)));
 		break;
 	case 3:
-		list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
-		
-		Plane* pLeft = new Plane(glm::vec3(-25.0f, 25.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f));
-		pLeft->setOrientation(glm::vec3(0.0f, 0.0f, 1.0f));
-		pLeft->setNormal(glm::vec3(1.0f, 0.0f, 0.0f));
-		pLeft->setAngularPosition(BAD_PI / 2);
-		list->push_back(pLeft);
-		//
-		Plane* pRight = new Plane(glm::vec3(25.0f, 25.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f));
-		pRight->setOrientation(glm::vec3(0.0f, 0.0f, -1.0f));
-		pRight->setNormal(glm::vec3(-1.0f, 0.0f, 0.0f));
-		pRight->setAngularPosition(BAD_PI / 2);
-		list->push_back(pRight);
-		//
-		Plane* pBack = new Plane(glm::vec3(0.0f, 25.0f, 25.0f), 5.0f, glm::vec2(50.0f, 50.0f));
-		pBack->setOrientation(glm::vec3(1.0f, 0.0f, 0.0f));
-		pBack->setNormal(glm::vec3(0.0f, 0.0f, 1.0f));
-		pBack->setAngularPosition(BAD_PI / 2);
-		list->push_back(pBack);
-		//
-		Plane* pFront= new Plane(glm::vec3(0.0f, 25.0f, -25.0f), 5.0f, glm::vec2(50.0f, 50.0f));
-		pFront->setOrientation(glm::vec3(-1.0f, 0.0f, 0.0f));
-		pFront->setNormal(glm::vec3(0.0f, 0.0f, -1.0f));
-		pFront->setAngularPosition(BAD_PI / 2);
-		list->push_back(pFront);
+		addSceneBox(list, glm::vec3(0.0f, 0.0f, 0.0f), 50.0f);
+		break;
 
+	case 4:
+		addSceneBox(list, glm::vec3(0.0f, 0.0f, 0.0f), 4.0f);
+		addSceneBox(list, glm::vec3(5.0f, 0.0f, 5.0f), 4.0f);
 		break;
 	}
+}
+
+void addSceneBox(vector<Entity*> *list, glm::vec3 pos, float s)
+{
+	Plane* pLeft;
+	Plane* pRight;
+	Plane* pBack;
+	Plane* pFront;
+
+	list->push_back(new Plane(pos, 5.0f, glm::vec2(s, s)));
+
+	pLeft = new Plane(glm::vec3(pos.x -s / 2, pos.y + s / 2, pos.z), 5.0f, glm::vec2(s, s));
+	pLeft->setOrientation(glm::vec3(0.0f, 0.0f, 1.0f));
+	pLeft->setNormal(glm::vec3(1.0f, 0.0f, 0.0f));
+	pLeft->setAngularPosition(BAD_PI / 2);
+	list->push_back(pLeft);
+	//
+	pRight = new Plane(glm::vec3(pos.x + s / 2, pos.y + s / 2, pos.z), 5.0f, glm::vec2(s, s));
+	pRight->setOrientation(glm::vec3(0.0f, 0.0f, -1.0f));
+	pRight->setNormal(glm::vec3(-1.0f, 0.0f, 0.0f));
+	pRight->setAngularPosition(BAD_PI / 2);
+	list->push_back(pRight);
+	//
+	pBack = new Plane(glm::vec3(pos.x,pos.y + s / 2, pos.z + s / 2), 5.0f, glm::vec2(s, s));
+	pBack->setOrientation(glm::vec3(1.0f, 0.0f, 0.0f));
+	pBack->setNormal(glm::vec3(0.0f, 0.0f, 1.0f));
+	pBack->setAngularPosition(BAD_PI / 2);
+	list->push_back(pBack);
+	//
+	pFront = new Plane(glm::vec3(pos.x, pos.y = s / 2, pos.z -s / 2), 5.0f, glm::vec2(s, s));
+	pFront->setOrientation(glm::vec3(-1.0f, 0.0f, 0.0f));
+	pFront->setNormal(glm::vec3(0.0f, 0.0f, -1.0f));
+	pFront->setAngularPosition(BAD_PI / 2);
+	list->push_back(pFront);
 }
