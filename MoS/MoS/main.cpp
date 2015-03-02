@@ -135,7 +135,7 @@ int main()
 		// Add balls to scene
 		if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
 			//objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
-			objectList.push_back(new Box(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, glm::vec3(5.5f, 1.0f, 1.0f*rand2)));
+			objectList.push_back(new Box(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, glm::vec3(0.5f+1.5f*rand1, 1.0f, 0.5f+1.5f*rand2)));
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
 
 			timeSinceAction = glfwGetTime();

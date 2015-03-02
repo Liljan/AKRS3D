@@ -234,12 +234,12 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 				orientation2 = tempBox->getOrientation();
 
 				//Kolla om de är innanför kollisionssfär
-				if (vLength <= glm::length(dim1) + glm::length(dim2))
+				if (vLength <= glm::length(dim1) + glm::length(dim2) && glm::abs(glm::length(posVector)) > 0.0f )
 				{
 					rotM = glm::mat3(cos(angle1)+pow(orientation1.x,2)*(1-cos(angle1)), orientation1.x*orientation1.y*(1-cos(angle1))-orientation1.z*sin(angle1), orientation1.x*orientation1.z*(1-cos(angle1))+orientation1.y*sin(angle1),
 									 orientation1.x*orientation1.y*(1-cos(angle1))+orientation1.z*sin(angle1), cos(angle1)+pow(orientation1.y,2)*(1-cos(angle1)), orientation1.y*orientation1.z*(1-cos(angle1))-orientation1.x*sin(angle1),
 									 orientation1.x*orientation1.z*(1-cos(angle1))-orientation1.y*sin(angle1), orientation1.y*orientation1.z*(1-cos(angle1))+orientation1.x*sin(angle1), cos(angle1)+pow(orientation1.z,2)*(1-cos(angle1)));
-
+					
 					//ortogonalprojektioner. Projicera alla punkter på linjen mellan kuberna för att avgöra vilka punkter som kolliderar
 					//de första 8 står för box1 och de 8 sista för box2
 					glm::vec3 projections[16];
@@ -264,36 +264,55 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));
 					p2Normal = glm::cross(normal, p1Normal);
 					glm::mat3 tempCoSystem = glm::mat3(glm::vec3(glm::normalize(normal)), glm::vec3(glm::normalize(p1Normal)), glm::vec3(glm::normalize(p2Normal)));
+					
+					//Byt koordinatsystem
+					//Box1 har origo i posVectors slut
+					for (int k = 0; k < 8; k++)
+						projections[k] = glm::transpose(tempCoSystem)*posVector - glm::transpose(tempCoSystem)*projections[k];
+					//Box2 har origo i posVectors början
+					for (int k = 8; k < 16; k++)
+						projections[k] = glm::transpose(tempCoSystem)*projections[k];
 
-					for (int k = 0; k < 16; k++)
-						projections[k] = tempCoSystem*projections[k];
-
-					float maxValue = 0, minValue = 10000;
+					//Hitta punkten som är längst ut för varje box. Om punkterna skär varandra är det kollison.
+					float maxValue = -10000, minValue = 10000;
 					int maxIndex, minIndex;
+					//Box1
 					for (int k = 0; k < 8; k++)
 					{
-						if (projections[k].z > maxValue)
+						if (projections[k].x < minValue)
 						{
-							maxValue = projections[k].z;
-							maxIndex = k;
-						}
-					}
-					for (int k = 8; k < 16; k++)
-					{
-						if (projections[k].z < minValue)
-						{
-							minValue = projections[k].z;
+							minValue = projections[k].x;
 							minIndex = k;
 						}
 					}
-					glm::vec3 newVel = projections[maxIndex] - (posVector - projections[minIndex]);
-					theEntityList->at(i)->setVelocity(-newVel);
-					theEntityList->at(j)->setVelocity(newVel);
-
-					cout << projections[0].z << " " << projections[1].z << " " << projections[2].z << " " << maxIndex << endl;
+					//Box2
+					for (int k = 8; k < 16; k++)
+					{
+						if (projections[k].x > maxValue)
+						{
+							maxValue = projections[k].x;
+							maxIndex = k;
+						}
+					}
+					
+					//kollisionslösning
+					if (projections[maxIndex].x > projections[minIndex].x)
+					{
+						theEntityList->at(i)->setPosition(iPos+0.01f*glm::normalize(tempCoSystem*(glm::transpose(tempCoSystem)*posVector)));
+						theEntityList->at(j)->setPosition(jPos+0.01f*glm::normalize(tempCoSystem*(-glm::transpose(tempCoSystem)*posVector)));
+						if (glm::length(theEntityList->at(i)->getVelocity()) > 0.1f)
+							theEntityList->at(i)->setVelocity(0.1f*glm::normalize(tempCoSystem*(glm::transpose(tempCoSystem)*posVector)));
+						else
+							theEntityList->at(i)->setVelocity(glm::vec3(0.0f,0.0f,0.0f));
+						if (glm::length(theEntityList->at(i)->getVelocity()) > 0.1f)
+							theEntityList->at(j)->setVelocity(0.1f*glm::normalize(tempCoSystem*(-glm::transpose(tempCoSystem)*posVector)));
+						else
+							theEntityList->at(j)->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+						theEntityList->at(i)->setAngularVelocity(theEntityList->at(i)->getAngularVelocity()*0.95f);
+						theEntityList->at(j)->setAngularVelocity(theEntityList->at(j)->getAngularVelocity()*0.95f);
+					}
 				}
 			}
-
 
 			//SPHERE TO PLANE
 			if (theEntityList->at(i)->getOtype() == 'P' && theEntityList->at(j)->getOtype() == 'S')
@@ -378,10 +397,11 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					-posVector.x, -posVector.y, -posVector.z, 1.0f) *
 					glm::vec4(jPos, 1.0f);
 
-				float tempRadius = glm::length(tempBox->getDim());
+				float tempRadius = tempBox->getDim().y;
 				if (nBasePos.x > -tempRadius && nBasePos.x < tempRadius && nBasePos.y < Pdim.y / 2.0f && nBasePos.y > -Pdim.y / 2.0f && nBasePos.z < Pdim.x / 2.0f && nBasePos.z > -Pdim.x / 2.0f)
 				{
-
+					tempBox->setVelocity(tempBox->getVelocity()*0.7f);
+					tempBox->setAngularVelocity(tempBox->getAngularVelocity()*0.9f);
 					//	glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
 					//		0.0f, 1.0f, 0.0f, -8.0f,
 					//		0.0f, 0.0f, 1.0f, 0.0f,
