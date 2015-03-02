@@ -3,31 +3,47 @@
 Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 {
 	position = _pos;
-	mass = _mass;
+	mass = _mass / 8.0f;
 	dim = _dim;
 	centerOfMass = position; // The center of mass is in the objects origin as default
-	inertia = 1; // temporary
 	oType = 'B';
 
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
 	orientation = { 0, 1.0f, 0 };
 	rotAxis = { 0, 1.0f, 0 };
-	angularVelocity = 2.0f;
+	angularVelocity = 0.0f;
 	angularAcceleration = 0.0f;
+
 
 	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	
+	vertices[0] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, _dim.z / 2.f);
+	vertices[1] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, -_dim.z / 2.f);
+	vertices[2] = glm::vec3(_dim.x / 2.f, -_dim.y / 2.f, -_dim.z / 2.f);
+	vertices[3] = glm::vec3(_dim.x / 2.f, -_dim.y / 2.f, _dim.z / 2.f);
+	vertices[4] = glm::vec3(-_dim.x / 2.f, _dim.y / 2.f, _dim.z / 2.f);
+	vertices[5] = glm::vec3(-_dim.x / 2.f, _dim.y / 2.f, -_dim.z / 2.f);
+	vertices[6] = glm::vec3(-_dim.x / 2.f, -_dim.y / 2.f, -_dim.z / 2.f);
+	vertices[7] = glm::vec3(-_dim.x / 2.f, -_dim.y / 2.f, _dim.z / 2.f);
 
-	vertexArray[0] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
-	vertexArray[1] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
-	vertexArray[2] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
-	vertexArray[3] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
-	vertexArray[4] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
-	vertexArray[5] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
-	vertexArray[6] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
-	vertexArray[7] = glm::vec4(_dim.x, _dim.y, _dim.z, 1.0);
+	inertia = glm::mat3(1);
+
+	for (int ii = 0; ii < 8; ii++)
+	{
+		inertia[0][0] += mass*(pow(vertices[ii].y, 2) + pow(vertices[ii].z, 2));
+		inertia[1][0] += -mass*vertices[ii].x*vertices[ii].y;
+		inertia[2][0] += -mass*vertices[ii].x*vertices[ii].z;
+		inertia[0][1] += -mass*vertices[ii].x*vertices[ii].y;
+		inertia[1][1] += mass*(pow(vertices[ii].x, 2) + pow(vertices[ii].z, 2));
+		inertia[2][1] += -mass*vertices[ii].y*vertices[ii].z;
+		inertia[0][2] += -mass*vertices[ii].x*vertices[ii].z;
+		inertia[1][2] += -mass*vertices[ii].z*vertices[ii].y;
+		inertia[2][2] += mass*(pow(vertices[ii].x, 2) + pow(vertices[ii].y, 2));
+	}
+	
 
 	createBox(_dim.x, _dim.y, _dim.z);
 }
@@ -157,7 +173,7 @@ void Box::display(ostream& os) const
 
 	os << "Mass: " << mass << endl;
 	os << "Center of mass: " << centerOfMass.x << ", " << centerOfMass.y << ", "<< centerOfMass.z << endl;
-	os << "Inertia: " << inertia << endl;
+//	os << "Inertia: " << inertia << endl;
 	os << endl;
 
 	os << "Position: " << position.x << ", " << position.y << ", "<< position.z << endl;

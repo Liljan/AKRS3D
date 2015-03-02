@@ -8,7 +8,7 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	mass = _mass;
 	radius = _rad;
 	centerOfMass = position; // The center of mass is in the objects origin as default
-	inertia = 1; // temporary
+	//inertia = 1; // temporary
 
 	createSphere(_rad, 6);
 	
@@ -189,7 +189,7 @@ void Sphere::display(ostream& os) const{
 
 	os << "Mass: " << mass << endl;
 	os << "Center of mass: " << centerOfMass.x << ", " << centerOfMass.y << ", "<< centerOfMass.z << endl;
-	os << "Inertia: " << inertia << endl;
+//	os << "Inertia: " << inertia << endl;
 	os << endl;
 
 	os << "Position: " << position.x << ", " << position.y << ", "<< position.z << endl;

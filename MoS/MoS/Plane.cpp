@@ -6,7 +6,7 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	mass = _mass;
 	dim = _dim;
 	centerOfMass = position; // The center of mass is in the objects origin as default
-	inertia = 1; // temporary
+//	inertia = 1; // temporary
 
 	oType = 'P';
 
@@ -15,6 +15,7 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
 	orientation = { 0.0f, 1.0f, 0.0f };
+	rotAxis = { 0.0f, 1.0f, 0.0f };
 	angularVelocity = 2.0f;
 	angularAcceleration = 0.0f;
 
@@ -113,7 +114,7 @@ void Plane::display(ostream& os) const
 
 	os << "Mass: " << mass << endl;
 	os << "Center of mass: " << centerOfMass.x << ", " << centerOfMass.y << ", " << centerOfMass.z << endl;
-	os << "Inertia: " << inertia << endl;
+//	os << "Inertia: " << inertia << endl;
 	os << endl;
 
 	os << "Position: " << position.x << ", " << position.y << ", " << position.z << endl;

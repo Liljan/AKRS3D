@@ -140,8 +140,8 @@ int main()
 
 		// Add balls to scene
 		if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
-			objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
-			//objectList.push_back(new Box(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f, glm::vec3(1.0f, 1.0f,1.0f)));
+			//objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
+			objectList.push_back(new Box(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f, glm::vec3(2.0f, 2.0f,2.0f)));
 			std::cout << "Number of objects: " << objectList.size() << std::endl;
 	
 			timeSinceAction = glfwGetTime();
@@ -223,7 +223,7 @@ int main()
 
 			MVstack.translate(oPointer->getPosition());
 		//	MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
-			MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
+			MVstack.rotAxis(oPointer->getRotAxis(), oPointer->getAngularPosition());
 
 			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
