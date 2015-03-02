@@ -14,7 +14,7 @@ public:
 	void calculateMovement(vector<Entity*> *theEntityList, GLFWwindow *window);
 
 	void integrate(Entity *E);
-	//kjhjkhkjhkjh
+	
 	void handleKeyInput(GLFWwindow *window);
 
 
