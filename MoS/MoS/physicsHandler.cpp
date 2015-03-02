@@ -243,23 +243,24 @@ void physicsHandler::resolveCollision(vector<Entity*> * theEntityList)
 					//ortogonalprojektioner. Projicera alla punkter på linjen mellan kuberna för att avgöra vilka punkter som kolliderar
 					//de första 8 står för box1 och de 8 sista för box2
 					glm::vec3 projections[16];
-					projections[0] = ((rotM*glm::vec3(dim1.x, dim1.y, dim1.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[1] = ((rotM*glm::vec3(dim1.x, -dim1.y, dim1.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[2] = ((rotM*glm::vec3(-dim1.x, dim1.y, dim1.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[3] = ((rotM*glm::vec3(-dim1.x, -dim1.y, dim1.z)*posVector) / glm::dot(posVector,posVector))*posVector;
-					projections[4] = ((rotM*glm::vec3(dim1.x, dim1.y, -dim1.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[5] = ((rotM*glm::vec3(dim1.x, -dim1.y, -dim1.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[6] = ((rotM*glm::vec3(-dim1.x, dim1.y, -dim1.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[7] = ((rotM*glm::vec3(-dim1.x, -dim1.y, -dim1.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[8] = ((rotM*glm::vec3(dim2.x, dim2.y, dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[9] = ((rotM*glm::vec3(dim2.x, -dim2.y, dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[10] = ((rotM*glm::vec3(-dim2.x, dim2.y, dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[11] = ((rotM*glm::vec3(-dim2.x, -dim2.y, dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[12] = ((rotM*glm::vec3(dim2.x, dim2.y, -dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[13] = ((rotM*glm::vec3(dim2.x, -dim2.y, -dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[14] = ((rotM*glm::vec3(-dim2.x, dim2.y, -dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
-					projections[15] = ((rotM*glm::vec3(-dim2.x, -dim2.y, -dim2.z)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[0] = ((rotM*glm::vec3(dim1.x / 2.0, dim1.y / 2.0, dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[1] = ((rotM*glm::vec3(dim1.x / 2.0, -dim1.y / 2.0, dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[2] = ((rotM*glm::vec3(-dim1.x / 2.0, dim1.y / 2.0, dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[3] = ((rotM*glm::vec3(-dim1.x / 2.0, -dim1.y / 2.0, dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[4] = ((rotM*glm::vec3(dim1.x / 2.0, dim1.y / 2.0, -dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[5] = ((rotM*glm::vec3(dim1.x / 2.0, -dim1.y / 2.0, -dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[6] = ((rotM*glm::vec3(-dim1.x / 2.0, dim1.y / 2.0, -dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[7] = ((rotM*glm::vec3(-dim1.x / 2.0, -dim1.y / 2.0, -dim1.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[8] = ((rotM*glm::vec3(dim2.x / 2.0, dim2.y / 2.0, dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[9] = ((rotM*glm::vec3(dim2.x / 2.0, -dim2.y / 2.0, dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[10] = ((rotM*glm::vec3(-dim2.x / 2.0, dim2.y / 2.0, dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[11] = ((rotM*glm::vec3(-dim2.x / 2.0, -dim2.y / 2.0, dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[12] = ((rotM*glm::vec3(dim2.x / 2.0, dim2.y / 2.0, -dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[13] = ((rotM*glm::vec3(dim2.x / 2.0, -dim2.y / 2.0, -dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[14] = ((rotM*glm::vec3(-dim2.x / 2.0, dim2.y / 2.0, -dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
+					projections[15] = ((rotM*glm::vec3(-dim2.x / 2.0, -dim2.y / 2.0, -dim2.z / 2.0)*posVector) / glm::dot(posVector, posVector))*posVector;
 
+					//Bilda nytt koordinatsystem
 					normal = posVector;
 					p1Normal = glm::cross(normal, glm::cross(normal, glm::vec3(normal.z, -normal.x, -normal.y)));
 					p2Normal = glm::cross(normal, p1Normal);
