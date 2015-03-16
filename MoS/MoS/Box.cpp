@@ -11,15 +11,18 @@ Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
 	orientation = { 0, 1.0f, 0 };
-	rotAxis = { 0, 1.0f, 0 };
+	rotAxis = { static_cast <float> (rand()) / static_cast <float> (RAND_MAX), 1.0f, static_cast <float> (rand()) / static_cast <float> (RAND_MAX) };
 	angularVelocity = 0.0f;
 	angularAcceleration = 0.0f;
+	angularPosition = 1.4;
 
 
 	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	
+	glm::vec3 vertices[8];
+
 	vertices[0] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, _dim.z / 2.f);
 	vertices[1] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, -_dim.z / 2.f);
 	vertices[2] = glm::vec3(_dim.x / 2.f, -_dim.y / 2.f, -_dim.z / 2.f);
@@ -44,7 +47,7 @@ Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 		inertia[2][2] += mass*(pow(vertices[ii].x, 2) + pow(vertices[ii].y, 2));
 	}
 	
-
+	mass = _mass;
 	createBox(_dim.x, _dim.y, _dim.z);
 }
 
