@@ -1,40 +1,36 @@
 #include "Plane.h"
 
-Plane::Plane(glm::vec3 _pos, float _mass, glm::vec3 _dim)
+Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 {
 	position = _pos;
 	mass = _mass;
 	dim = _dim;
 	centerOfMass = position; // The center of mass is in the objects origin as default
-	inertia = 1; // temporary
+//	inertia = 1; // temporary
 
+	oType = 'P';
+
+
+	normal = { 0.0f, 1.0f, 0.0f };
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
-	orientation = { 0, 0, 0 };
-	angularVelocity = { 0, 0, 0 };
-	angularAcceleration = { 0, 0, 0 };
+	orientation = { 0.0f, 1.0f, 0.0f };
+	rotAxis = { 0.0f, 1.0f, 0.0f };
+	angularVelocity = 2.0f;
+	angularAcceleration = 0.0f;
 
-}
-
-Plane::~Plane(void)
-{
-	cout << "A box has died." << endl;
-}
-
-void Plane::createPlane(float xSize, float ySize)
-{
 	color.x = 0.7;
 	color.y = 0.7;
 	color.z = 0.7;
 	GLfloat vertex_array_data[] = {
-		xSize/2.0, 0.0, ySize/2.0, 0.0f , 1.0f , 0.0f,
-		-xSize/2.0, 0.0, -ySize/2.0, 0.0f, 1.0f, 0.0f,
-		-xSize/2.0, 0.0, ySize/2.0, 0.0f, 1.0f, 0.0f,
-		xSize/2.0, 0.0, -ySize/2.0, 0.0f, 1.0f, 0.0f
+		_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f
 	};
 
 	static const GLuint index_array_data[] = {
-		0, 1, 2, 
+		0, 1, 2,
 		0, 3, 1, //
 	};
 	nverts = 4;
@@ -65,7 +61,6 @@ void Plane::createPlane(float xSize, float ySize)
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	glEnableVertexAttribArray(1); // Normals
-	//glEnableVertexAttribArray(2); // Texture coordinates
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
 	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
@@ -77,8 +72,6 @@ void Plane::createPlane(float xSize, float ySize)
 		6 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
 		6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-	//	8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texcoords
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
@@ -92,25 +85,33 @@ void Plane::createPlane(float xSize, float ySize)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+}
+
+Plane::~Plane(void)
+{
+	cout << "A box has died." << endl;
 }
 
 void Plane::render()
 {
 	glBindVertexArray(vao);
+    glColor3f(color.x,color.y,color.z);
+	//ooglDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
 }
+	
 
 void Plane::display(ostream& os) const
 {
 	os << "Shape: Plane" << endl;
-	os << "Dimensions: " << dim.x << ", " << dim.y << " ," << dim.z << endl;
+	os << "Dimensions: " << dim.x << ", " << dim.y << " ,"  << endl;
 	os << endl;
 
 	os << "Mass: " << mass << endl;
 	os << "Center of mass: " << centerOfMass.x << ", " << centerOfMass.y << ", " << centerOfMass.z << endl;
-	os << "Inertia: " << inertia << endl;
 	os << endl;
 
 	os << "Position: " << position.x << ", " << position.y << ", " << position.z << endl;
@@ -119,9 +120,4 @@ void Plane::display(ostream& os) const
 	os << endl;
 
 	os << "Orientation: " << orientation.x << ", " << orientation.y << ", " << orientation.z << endl;
-	os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", " << angularVelocity.z << endl;
-	os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", " << angularAcceleration.z << endl;
-	os << endl;
-
-	os << "" << endl;
 }

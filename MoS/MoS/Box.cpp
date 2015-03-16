@@ -3,21 +3,54 @@
 Box::Box(glm::vec3 _pos, float _mass, glm::vec3 _dim)
 {
 	position = _pos;
-	mass = _mass;
+	mass = _mass / 8.0f;
 	dim = _dim;
 	centerOfMass = position; // The center of mass is in the objects origin as default
-	inertia = 1; // temporary
+	oType = 'B';
 
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
-	orientation = { 0, 0, 0 };
-	angularVelocity = { 0, 0, 0 };
-	angularAcceleration = { 0, 0, 0 };
+	orientation = { 0, 1.0f, 0 };
+	rotAxis = { static_cast <float> (rand()) / static_cast <float> (RAND_MAX), 1.0f, static_cast <float> (rand()) / static_cast <float> (RAND_MAX) };
+	angularVelocity = 0.0f;
+	angularAcceleration = 0.0f;
+	angularPosition = 1.4;
+
 
 	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	
+	glm::vec3 vertices[8];
+
+	vertices[0] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, _dim.z / 2.f);
+	vertices[1] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, -_dim.z / 2.f);
+	vertices[2] = glm::vec3(_dim.x / 2.f, -_dim.y / 2.f, -_dim.z / 2.f);
+	vertices[3] = glm::vec3(_dim.x / 2.f, -_dim.y / 2.f, _dim.z / 2.f);
+	vertices[4] = glm::vec3(-_dim.x / 2.f, _dim.y / 2.f, _dim.z / 2.f);
+	vertices[5] = glm::vec3(-_dim.x / 2.f, _dim.y / 2.f, -_dim.z / 2.f);
+	vertices[6] = glm::vec3(-_dim.x / 2.f, -_dim.y / 2.f, -_dim.z / 2.f);
+	vertices[7] = glm::vec3(-_dim.x / 2.f, -_dim.y / 2.f, _dim.z / 2.f);
+
+	inertia = glm::mat3(1);
+
+	for (int ii = 0; ii < 8; ii++)
+	{
+		inertia[0][0] += mass*(pow(vertices[ii].y, 2) + pow(vertices[ii].z, 2));
+		inertia[1][0] += -mass*vertices[ii].x*vertices[ii].y;
+		inertia[2][0] += -mass*vertices[ii].x*vertices[ii].z;
+		inertia[0][1] += -mass*vertices[ii].x*vertices[ii].y;
+		inertia[1][1] += mass*(pow(vertices[ii].x, 2) + pow(vertices[ii].z, 2));
+		inertia[2][1] += -mass*vertices[ii].y*vertices[ii].z;
+		inertia[0][2] += -mass*vertices[ii].x*vertices[ii].z;
+		inertia[1][2] += -mass*vertices[ii].z*vertices[ii].y;
+		inertia[2][2] += mass*(pow(vertices[ii].x, 2) + pow(vertices[ii].y, 2));
+	}
+	
+	mass = _mass;
+	createBox(_dim.x, _dim.y, _dim.z);
 }
+
 
 Box::~Box(void)
 {
@@ -26,103 +59,34 @@ Box::~Box(void)
 
 void Box::createBox(float xSize, float ySize, float zSize)
 {
-	// Constant data arrays for this simple test.
-	// Note, however, that they need to be copied to dynamic arrays
-	// in the class. These local variables are not persistent.
-	//
-	// The data array contains 8 floats per vertex:
-	// coordinate xyz, normal xyz, texcoords st
-	/*
-	const GLfloat vertex_array_data[] = {
-		//Front (pos z)
-		xSize / 2, ySize / 2.0f, zSize / 2.0f , 0.0f, 0.0f, 1.0f,
-		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-
-		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,
-		
-		//Back (neg z)
-		xSize / 2, ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-
-		xSize / 2, ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		xSize / 2, -ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, 0.0f, -1.0f,
-
-		//Side 1 (pos x)
-		xSize / 2, ySize / 2, -zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, -ySize / 2, zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 1.0f, 0.0f, 0.0f,
-
-		xSize / 2, ySize / 2, -zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, -ySize / 2, -zSize / 2, 1.0f, 0.0f, 0.0f,
-		xSize / 2, -ySize / 2, zSize / 2, 1.0f, 0.0f, 0.0f,
-
-		//Side 2 (neg x)
-		-xSize / 2, ySize / 2, zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, ySize / 2, -zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, -ySize / 2, zSize / 2, -1.0f, 0.0f, 0.0f,
-
-		-xSize / 2, ySize / 2, -zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, -1.0f, 0.0f, 0.0f,
-		-xSize / 2, -ySize / 2, zSize / 2, -1.0f, 0.0f, 0.0f,
-
-		//Top (pos y)
-		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
-		-xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-
-		-xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, zSize / 2, 0.0f, 1.0f, 0.0f,
-		xSize / 2, ySize / 2, -zSize / 2, 0.0f, 1.0f, 0.0f,
-
-		//Bottom (neg y)
-		xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
-		-xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
-
-		xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
-		-xSize / 2, -ySize / 2, -zSize / 2, 0.0f, -1.0f, 0.0f,
-		xSize / 2, -ySize / 2, zSize / 2, 0.0f, -1.0f, 0.0f,
-		
-	};
-
-	const GLuint index_array_data[] = {
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
-	};
-	
-	*/
 
 	GLfloat vertex_array_data[] = {
-		-xSize / 2.0f, -xSize / 2.0f, xSize / 2.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  //1 - 0
-		xSize / 2.0f, -xSize / 2.0f, xSize / 2.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, //2 - 1
-		xSize / 2.0f, xSize / 2.0f, xSize / 2.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,   //3 - 2
-		-xSize / 2.0f, xSize / 2.0f, xSize / 2.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  //4 - 3 
-		-xSize / 2.0f, -xSize / 2.0f, -xSize / 2.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,//5 - 4 
-		xSize / 2.0f, -xSize / 2.0f, -xSize / 2.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, //6 - 5
-		xSize / 2.0f, xSize / 2.0f, -xSize / 2.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,  //7 - 6 
-		-xSize / 2.0f, xSize / 2.0f, -xSize / 2.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, //8 - 7
+		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,  //1 - 0
+		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f, //2 - 1
+		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,   //3 - 2
+		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,  //4 - 3 
+		-xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f, //5 - 4 
+		xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f, //6 - 5
+		xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f,  //7 - 6 
+		-xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f, //8 - 7
 
-		-xSize / 2.0f, -xSize / 2.0f, xSize / 2.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, //1 - 8
-		xSize / 2.0f, -xSize / 2.0f, xSize / 2.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  //2 - 9
-		xSize / 2.0f, xSize / 2.0f, xSize / 2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,   //3 - 10
-		-xSize / 2.0f, xSize / 2.0f, xSize / 2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  //4 - 11
-		-xSize / 2.0f, -xSize / 2.0f, -xSize / 2.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, //5 - 12
-		xSize / 2.0f, -xSize / 2.0f, -xSize / 2.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, //6 - 13
-		xSize / 2.0f, xSize / 2.0f, -xSize / 2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  //7 - 14
-		-xSize / 2.0f, xSize / 2.0f, -xSize / 2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  //8 - 15
+		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, -1.0f, 0.0f, 0.0f, //1 - 8
+		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, -1.0f, 0.0f, 0.0f,  //2 - 9
+		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 1.0f, 0.0f, 0.0f,   //3 - 10
+		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 1.0f, 0.0f, 0.0f,  //4 - 11
+		-xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, -1.0f, 0.0f, 0.0f, //5 - 12
+		xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, -1.0f, 0.0f, 0.0f, //6 - 13
+		xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 1.0f, 0.0f, 0.0f,  //7 - 14
+		-xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 1.0f, 0.0f, 0.0f,  //8 - 15
 
-		-xSize / 2.0f, -xSize / 2.0f, xSize / 2.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,  //1 - 16
-		xSize / 2.0f, -xSize / 2.0f, xSize / 2.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  //2 - 17
-		xSize / 2.0f, xSize / 2.0f, xSize / 2.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,   //3 - 18
-		-xSize / 2.0f, xSize / 2.0f, xSize / 2.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,  //4 - 19
-		-xSize / 2.0f, -xSize / 2.0f, -xSize / 2.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,//5 - 20
-		xSize / 2.0f, -xSize / 2.0f, -xSize / 2.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, //6 - 21
-		xSize / 2.0f, xSize / 2.0f, -xSize / 2.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  //7 - 22
-		-xSize / 2.0f, xSize / 2.0f, -xSize / 2.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, //8 - 23
+		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, -1.0f, 0.0f,  //1 - 16
+		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 1.0f, 0.0f,  //2 - 17
+		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 1.0f, 0.0f,   //3 - 18
+		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, -1.0f, 0.0f,  //4 - 19
+		-xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, -1.0f, 0.0f, //5 - 20
+		xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, 1.0f, 0.0f, //6 - 21
+		xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, 1.0f, 0.0f,  //7 - 22
+		-xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, -1.0f, 0.0f, //8 - 23
 	};
 
 	static const GLuint index_array_data[] = {
@@ -142,9 +106,9 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	nverts = 24;
 	ntris = 12;
 
-	vertexarray = new GLfloat[8 * nverts];
+	vertexarray = new GLfloat[6 * nverts];
 	indexarray = new GLuint[3 * ntris];
-	for (int i = 0; i<8 * nverts; i++) {
+	for (int i = 0; i<6 * nverts; i++) {
 		vertexarray[i] = vertex_array_data[i];
 	}
 	for (int i = 0; i<3 * ntris; i++) {
@@ -163,11 +127,10 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-		8 * nverts * sizeof(GLfloat), vertexarray, GL_STATIC_DRAW);
+		6 * nverts * sizeof(GLfloat), vertexarray, GL_STATIC_DRAW);
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	glEnableVertexAttribArray(1); // Normals
-	//glEnableVertexAttribArray(2); // Texture coordinates
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
 	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
@@ -176,11 +139,9 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	// Stride 8 floats (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3 or 6 floats (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		8 * sizeof(GLfloat), (void*)0); // xyz coordinates
+		6 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-	//	8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texcoords
+		6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
@@ -212,7 +173,7 @@ void Box::display(ostream& os) const
 
 	os << "Mass: " << mass << endl;
 	os << "Center of mass: " << centerOfMass.x << ", " << centerOfMass.y << ", "<< centerOfMass.z << endl;
-	os << "Inertia: " << inertia << endl;
+//	os << "Inertia: " << inertia << endl;
 	os << endl;
 
 	os << "Position: " << position.x << ", " << position.y << ", "<< position.z << endl;
@@ -221,9 +182,4 @@ void Box::display(ostream& os) const
 	os << endl;
 	
 	os << "Orientation: " << orientation.x << ", " << orientation.y << ", "<< orientation.z << endl;
-	os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", "<< angularVelocity.z << endl;
-	os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", "<< angularAcceleration.z << endl;
-	os << endl;
-
-	os << "" << endl;
 }

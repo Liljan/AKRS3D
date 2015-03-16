@@ -1,11 +1,11 @@
 #include "Camera.h"
 
 
-Camera::Camera()
+Camera::Camera(float _rad)
 {
 	phi = 0.0f;
 	theta = PI / 4.0f;
-	rad = 5.0f;
+	rad = _rad;
 
 	zoomFactor = PI;
 }
@@ -20,8 +20,6 @@ void Camera::poll(GLFWwindow *window)
 	newTime = glfwGetTime();
 	deltaTime = newTime - currTime;
 	currTime = newTime;
-
-
 
 if (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL))
 {

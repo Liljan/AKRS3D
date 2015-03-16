@@ -6,6 +6,7 @@ uniform mat4 MV;
 uniform mat4 P;
 
 uniform vec3 lightPosition;
+uniform vec3 cameraPosition;
 uniform vec3 objectPosition;
 uniform vec3 objectColor;
 
@@ -16,17 +17,18 @@ void main ()
 {
     // Ambient, diffuse and specular constants. nS is a notation on shininess (higher = more shiny)
 	float kA = 0.3;
-	float kS = 0.5;
-	float kD = 0.3;
-	float nS = 3;
+	float kS = 0.4;
+	float kD = 0.5;
+	float nS = 4;
 
 	gl_Position = P * MV * vec4 (Position, 1.0);
 	interpolatedNormal = mat3(MV) * Normal;
 	vec3 lightDirection =  lightPosition - vec3(gl_Position) ;
 	lightDirection.z = -lightDirection.z;
+	
 
 	vec3 reflection = reflect(normalize(-lightDirection), normalize(interpolatedNormal));
-	vec3 cameraDirection = -vec3(gl_Position);
+	vec3 cameraDirection = cameraPosition - vec3(gl_Position);
 	
 	float sLight;
 	float dLight = dot(normalize(interpolatedNormal), normalize(lightDirection));
@@ -35,12 +37,12 @@ void main ()
 	}
 	else {
 		sLight = dot(normalize(reflection), normalize(cameraDirection));
-	sLight = max(0, sLight);
+        sLight = max(0, sLight);
 	}
 	
 	dLight = max(0, dLight);
 
     // totalLightinPixel = (Ambient + Diffuse + Specular light)*objectColor
-	interpolatedColor = kA * objectColor + kS * pow(sLight, nS) * objectColor + kD * dLight * objectColor;
+	interpolatedColor = kA *objectColor + kD * dLight * vec3(1.0, 1.0, 1.0) +  kS * pow(sLight, nS) * vec3(1.0, 1.0, 1.0);
 
 }

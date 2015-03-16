@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cstdlib>
 
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 
 using namespace std;
 
@@ -25,17 +25,20 @@ class Entity
 
 		//getters
 		float getMass(){return mass;}
-		float getInertia(){return inertia;}
+		glm::mat3 getInertia(){return inertia;}
 		bool getStatic() { return isStatic; }
 		glm::vec3 getCenterOfMass(){ return centerOfMass; }
+		char getOtype(){ return oType; }
 
 		glm::vec3 getPosition(){ return position; }
 		glm::vec3 getVelocity(){ return velocity; }
 		glm::vec3 getAcceleration(){ return acceleration; }
 
 		glm::vec3 getOrientation(){ return orientation; }
-		glm::vec3 getAngularVelocity(){ return angularVelocity; }
-		glm::vec3 getAngularAcceleration(){ return angularAcceleration; }
+		glm::vec3 getRotAxis(){ return rotAxis; }
+		float getAngularPosition(){ return angularPosition; }
+		float getAngularVelocity(){ return angularVelocity; }
+		float getAngularAcceleration(){ return angularAcceleration; }
 
 
 		glm::vec3 getColor(){ return color; }
@@ -46,7 +49,7 @@ class Entity
 
 		//setters
 		void setMass(float m){ mass = m; }
-		void setInertia(float i){ inertia = i; }
+		void setInertia(glm::mat3 i){ inertia = i; }
 		void setCenterOfMass(glm::vec3 c){ centerOfMass = c; }
 
 		void setPosition(glm::vec3 p){ position = p; }
@@ -54,8 +57,10 @@ class Entity
 		void setAcceleration(glm::vec3 a){ acceleration = a; }
 
 		void setOrientation(glm::vec3 o){ orientation = o; }
-		void setAngularVelocity(glm::vec3 a){ angularVelocity = a; }
-		void setAngularAcceleration(glm::vec3 a){ angularAcceleration = a; }
+		void setRotAxis(glm::vec3 _rotAxis){ rotAxis = _rotAxis; }
+		void setAngularPosition(float a){ angularPosition = a; }
+		void setAngularVelocity(float a){ angularVelocity = a; }
+		void setAngularAcceleration(float a){ angularAcceleration = a; }
 
 		// To print
 		friend ostream& operator<<(ostream &os, const Entity &E);
@@ -66,16 +71,21 @@ class Entity
 
 		bool isStatic;
 		float mass;
-		float inertia;
+		glm::mat3 inertia;
 		glm::vec3 centerOfMass;
+		char oType; 
+
+
 
 		glm::vec3 position;
 		glm::vec3 velocity;
 		glm::vec3 acceleration;
 		
 		glm::vec3 orientation;
-		glm::vec3 angularVelocity;
-		glm::vec3 angularAcceleration;
+		glm::vec3 rotAxis;
+		float angularPosition;
+		float angularVelocity;
+		float angularAcceleration;
 		
 		glm::vec3 color;
 
