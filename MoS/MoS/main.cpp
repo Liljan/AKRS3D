@@ -18,7 +18,6 @@ void addSceneBox(vector<Entity*> *list, glm::vec3 pos, float s);
 void mouse_button_callback(GLFWwindow*, int button, int action, int mods);
 Entity* getSelectedObject(std::vector<Entity*> objectList, glm::vec3 cursorRay_wor, glm::mat4 viewMatrix);
 
-// The worst
 const float BAD_PI = 3.141592f;
 int currentScene;
 
@@ -61,11 +60,6 @@ int main()
     
     
     // GL-related variables
-    
-    GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
-        , 0.0f, 1.0f, 0.0f, 0.0f
-        , 0.0f, 0.0f, 1.0f, 0.0f
-        , 0.0f, 0.0f, 0.0f, 1.0f };
     GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f
         , 0.0f, 2.42f, 0.0f, 0.0f
         , 0.0f, 0.0f, -1.0f, -1.0f
@@ -162,31 +156,31 @@ int main()
         
         deltaTime = glfwGetTime() - timeSinceAction;
         
-        // Add balls to scene
-        if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
-            //objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
+        // Add box to scene
+        if (glfwGetKey(window, GLFW_KEY_U) && deltaTime > 0.1) {
 			objectList.push_back(new Box(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, glm::vec3(1.0f, 1.0f, 1.0f)));
             std::cout << "Number of objects: " << objectList.size() << std::endl;
-            
             timeSinceAction = glfwGetTime();
         }
-        
+        // Add spheres to scene
         if (glfwGetKey(window, GLFW_KEY_I) && deltaTime > 0.1) {
             objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 65.45f, 2.5f));
             std::cout << "Number of objects: " << objectList.size() << std::endl;
-            
             timeSinceAction = glfwGetTime();
         }
-        
-        
-        // Remove one ball
+        if (glfwGetKey(window, GLFW_KEY_O) && deltaTime > 0.1) {
+            objectList.push_back(new Sphere(glm::vec3(0.5f*rand1, 8.0f, 0.5f*rand2), 5.0f, 0.5f));
+            std::cout << "Number of objects: " << objectList.size() << std::endl;
+            timeSinceAction = glfwGetTime();
+        }
+        // Remove one object
         if (glfwGetKey(window, GLFW_KEY_BACKSPACE) && objectList.size() > 1 && deltaTime > 0.1) {
             objectList.erase(objectList.end() - 1);
             std::cout << "Number of objects: " << objectList.size() << std::endl;
             
             timeSinceAction = glfwGetTime();
         }
-        // Flush your balls
+        // Flush your objects
         if (glfwGetKey(window, GLFW_KEY_DELETE))
         {
             changeScene(currentScene, vPointer);
@@ -194,17 +188,15 @@ int main()
         }
         // Mouse interaction
         glfwSetMouseButtonCallback(window, mouse_button_callback);
-        if (mouseState == MOUSE_BUTTON_LEFT) {
+        if (mouseState == MOUSE_BUTTON_RELEASED) {
+            selectedObject = nullptr;
+        }
+        // Select object
+        else if (mouseState == MOUSE_BUTTON_LEFT) {
             glfwGetCursorPos(window, &xMouse, &yMouse);
             glfwGetWindowSize(window, &width, &height);
 
-			cout << "\n" << xMouse << "\n";
-			cout << "\n" << yMouse << "\n";
             aspect = (float) (width) / (float) (height);
-            // range[-1:1, -1:1, -1:1]
-			//xMouse = (2.0*xMouse / width) - 1 / aspect;
-			//yMouse = 1 - (2.0*yMouse / height);
-
 			xMouse = (xMouse / width)*2.0f - 1.0f;
 			yMouse = -(yMouse / height) * 2.0f + 1.0f;
             if (xMouse > 1) xMouse = 1;
@@ -217,13 +209,6 @@ int main()
             
             cursorRay_clip = glm::normalize((glm::inverse(glm::make_mat4(P)) * glm::vec4(cursorRay.x, cursorRay.y, 1.0f, 1.0f)))*10.0f;
 			cout << cursorRay_clip.x << " " << cursorRay_clip.y << " " << cursorRay_clip.z << " " << endl;
-			//cursorRay_eye = glm::inverse(projectionMatrix)*cursorRay_clip;
-            //cursorRay_eye = glm::vec4(cursorRay_eye.x, cursorRay_eye.y, -1.0f, 0.0f);
-            //cursorRay_wor = glm::vec3(glm::inverse(viewMatrix)*cursorRay_eye);
-            //cursorRay_wor = glm::normalize(cursorRay_wor);
-            //cursorRay_wor.y = -cursorRay_wor.y;
-            //cursorRay_wor.x = -cursorRay_wor.x;
-            //cursorRay_wor.z = -cursorRay_wor.z;
             
             glm::vec3 objectVector;
             objectVector = glm::normalize(objectList.at(1)->getPosition());
@@ -234,14 +219,14 @@ int main()
             if (!selectedObject) {
                 selectedObject = getSelectedObject(objectList, cursorRay_wor, viewMatrix);
             } else {
+                // TODO
                 //selectedObject->setVelocity(glm::vec3(0.0f,10.0f,0.0f));
                 std::cout << "You got the ball!" << endl;
             }
             // flush stuff
-        } else if (mouseState == MOUSE_BUTTON_RELEASED) {
-            selectedObject = nullptr;
+        // Push objects
         } else if (mouseState == MOUSE_BUTTON_RIGHT) {
-            // push objects
+            // TODO
         }
         
         //GL calls
@@ -250,7 +235,6 @@ int main()
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glUseProgram(phongShader.programID);
         
         //Send static variables to vertexshader
@@ -270,8 +254,6 @@ int main()
         MVstack.rotY(theCamera.getPhi());
         
         viewMatrix = glm::make_mat4(MVstack.getCurrentMatrix());
-        
-        //glm::inverse(glm::mat4(MVstack.getCurrentMatrix()));
         li = glm::inverse(viewMatrix)*li;
         cam = glm::inverse(viewMatrix)*cam;
         
@@ -296,7 +278,7 @@ int main()
             MVstack.push();
             
 				MVstack.translate(oPointer->getPosition());
-				MVstack.rotAxis(oPointer->getRotAxis(), oPointer->getAngularPosition());
+				MVstack.rotAxis(oPointer->getOrientation(), oPointer->getAngularPosition());
             
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
             
@@ -304,10 +286,6 @@ int main()
 				C[1] = oPointer->getColorG();
 				C[2] = oPointer->getColorB();
 				glUniform3fv(locationColor, 1, C);
-
-				//if (oPointer->getOtype() == 'S')
-				//	cout << (glm::make_mat4(MVstack.getCurrentMatrix())*glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)).x << " " << (glm::make_mat4(MVstack.getCurrentMatrix())*glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)).y << " " <<  (glm::make_mat4(MVstack.getCurrentMatrix())*glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)).z << endl;
-            
 				oPointer->render();
             MVstack.pop();
         }

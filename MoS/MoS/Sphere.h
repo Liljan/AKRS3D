@@ -1,11 +1,10 @@
 #pragma once
-#include "entity.h"
+#include "Entity.h"
 #include "Utilities.h"
 class Sphere :
 	public Entity
 {
 public:
-	
 	// Creates a sphere  
 	Sphere(glm::vec3 _pos, float _mass, float _rad);
 	~Sphere(void);

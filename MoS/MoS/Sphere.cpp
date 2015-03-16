@@ -8,7 +8,6 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	mass = _mass;
 	radius = _rad;
 	centerOfMass = position; // The center of mass is in the objects origin as default
-	//inertia = 1; temporary
 
 	createSphere(_rad, 32);
 	
@@ -20,11 +19,6 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	angularVelocity = 0.0f;
 	angularAcceleration = 0.0f;
 
-	/* Random color
-	color.r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	color.g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	color.b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	*/
 	color.r = mass / 50;
 	color.b = 1 - mass / 50;
 	color.g = 0.1;

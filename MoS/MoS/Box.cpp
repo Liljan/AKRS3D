@@ -131,7 +131,6 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	glEnableVertexAttribArray(1); // Normals
-	//glEnableVertexAttribArray(2); // Texture coordinates
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
 	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
@@ -143,8 +142,6 @@ void Box::createBox(float xSize, float ySize, float zSize)
 		6 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
 		6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-	//	8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texcoords
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
@@ -185,9 +182,4 @@ void Box::display(ostream& os) const
 	os << endl;
 	
 	os << "Orientation: " << orientation.x << ", " << orientation.y << ", "<< orientation.z << endl;
-//	os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", "<< angularVelocity.z << endl;
-//	os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", "<< angularAcceleration.z << endl;
-	os << endl;
-
-	os << "" << endl;
 }

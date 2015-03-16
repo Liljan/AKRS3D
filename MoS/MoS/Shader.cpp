@@ -149,9 +149,9 @@ unsigned char* Shader::readShaderFile(const char *filename) {
 		printError("ERROR", "Cannot open shader file!");
 		return 0;
 	}
-	int bytesinfile = filelength(file);
+	long bytesinfile = filelength(file);
 	unsigned char *buffer = new unsigned char[bytesinfile + 1];
-	int bytesread = fread(buffer, 1, bytesinfile, file);
+	long bytesread = fread(buffer, 1, bytesinfile, file);
 	buffer[bytesread] = 0; // Terminate the string with 0
 	fclose(file);
 
