@@ -38,10 +38,8 @@ void setupViewport(GLFWwindow *window, GLfloat *P)
     glViewport(0, 0, width, height);
 }
 
-
 int main()
 {
-
     // time related variables
     srand((unsigned)time(NULL));
     double timeSinceAction = glfwGetTime();
@@ -291,7 +289,6 @@ int main()
             MVstack.pop();
         }
         
-
         MVstack.pop();
 
 		MVstack.push();
@@ -327,6 +324,10 @@ int main()
         {
             changeScene(4, vPointer);
         }
+/*		if (glfwGetKey(window, GLFW_KEY_5))
+		{
+			changeScene(5, vPointer);
+		} */
         glfwSwapBuffers(window);
     }
     
@@ -405,17 +406,28 @@ void changeScene(int scene, vector<Entity*> *list)
             list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
             break;
         case 2:
-            list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(1.0f, 1.0f)));
-            list->push_back(new Plane(glm::vec3(0.0f, 10.0f, 0.0f), 5.0f, glm::vec2(1.0f, 1.0f)));
+            list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(10.0f, 10.0f)));
+            list->push_back(new Plane(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, glm::vec2(3.0f, 2.0f)));
             break;
         case 3:
             addSceneBox(list, glm::vec3(0.0f, 0.0f, 0.0f), 50.0f);
             break;
             
         case 4:
-            addSceneBox(list, glm::vec3(0.0f, 0.0f, 0.0f), 4.0f);
-            addSceneBox(list, glm::vec3(5.0f, 0.0f, 5.0f), 4.0f);
+            addSceneBox(list, glm::vec3(0.0f, 0.3f, 0.0f), 4.0f);
+			list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
             break;
+
+/*		case 5:
+			Plane* slope = new Plane(glm::vec3(0.0f, 5.0f, 0.0f), 5.0f, glm::vec2(10.0f, 2.0f));
+			slope->setOrientation(glm::vec3(0.5f, 0.0f, 0.5f));
+			slope->setNormal(glm::vec3(1.0f, 0.0f, 0.0f));
+			slope->setAngularPosition(BAD_PI / 6);
+			list->push_back(slope);
+			list->push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, glm::vec2(50.0f, 50.0f)));
+			break;
+
+			*/
     }
 }
 

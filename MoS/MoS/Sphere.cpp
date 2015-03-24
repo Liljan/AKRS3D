@@ -19,9 +19,16 @@ Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
 	angularVelocity = 0.0f;
 	angularAcceleration = 0.0f;
 
-	color.r = mass / 50;
+/*	color.r = mass / 50;
 	color.b = 1 - mass / 50;
 	color.g = 0.1;
+
+	*/
+
+	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
 	}
 
 void Sphere::render()
