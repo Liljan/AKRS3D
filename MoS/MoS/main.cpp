@@ -124,7 +124,7 @@ int main()
     
     physicsHandler theHandler;
 
-	Sphere mouse(glm::vec3(0.0, 0.0f, 0.0f), 65.45f, 0.1f);
+	//Sphere mouse(glm::vec3(0.0, 0.0f, 0.0f), 65.45f, 0.1f);
     
     
     //link variables to shader
@@ -294,13 +294,13 @@ int main()
 		MVstack.push();
 			MVstack.translate(glm::vec3(cursorRay_clip));
 			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-			mouse.render();
+			//mouse.render();
 		MVstack.pop();
 
 		MVstack.push();
 		MVstack.translate(glm::vec3(cursorRay_clip.x, cursorRay_clip.y, cursorRay_clip.z));
 		glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-		mouse.render();
+		//mouse.render();
 		MVstack.pop();
         
         // Experimental - create scene
