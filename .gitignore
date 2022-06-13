@@ -255,10 +255,5 @@ Temporary Items
 *.out
 *.app
 
-# Sub directories
-MoS/MoS/include/
-MoS/include/
-include/
-
 # RC files
 *.rc
