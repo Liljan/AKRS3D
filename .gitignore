@@ -6,7 +6,7 @@
 
 # User-specific files
 *.suo
-*.user
+*.users
 *.userosscache
 *.sln.docstates
 
@@ -21,6 +21,8 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+
+*/.vs/*
 
 # Roslyn cache directories
 *.ide/
@@ -247,8 +249,6 @@ Temporary Items
 *.lai
 *.la
 *.a
-*.dll
-*.lib
 
 # Executables
 *.exe
