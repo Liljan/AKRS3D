@@ -13,13 +13,11 @@
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/
+MoS/Release/
 [Rr]eleases/
-x64/
-x86/
 build/
 bld/
-[Bb]in/
+MoS/bin/
 [Oo]bj/
 
 */.vs/*
